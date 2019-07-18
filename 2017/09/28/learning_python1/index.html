@@ -1,0 +1,194 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="无聊，看看书，学学算法。"><meta name="keywords" content="python,algorithm"><meta name="author" content="Mochazz"><meta name="copyright" content="Mochazz"><title>python学习(一) | Mochazz's blog</title><link rel="shortcut icon" href="/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.6.1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.6.1"><link rel="dns-prefetch" href="https://cdn.staticfile.org"><link rel="dns-prefetch" href="https://cdn.bootcss.com"><link rel="dns-prefetch" href="https://creativecommons.org"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  }
+} </script></head><body><canvas class="fireworks"></canvas><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#二叉树-前、中、后序遍历"><span class="toc-number">1.</span> <span class="toc-text">二叉树(前、中、后序遍历)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#小根堆"><span class="toc-number">2.</span> <span class="toc-text">小根堆</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#凯撒移位"><span class="toc-number">3.</span> <span class="toc-text">凯撒移位</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#类型转换"><span class="toc-number">4.</span> <span class="toc-text">类型转换</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#字符串加解密"><span class="toc-number">5.</span> <span class="toc-text">字符串加解密</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#pycrypto"><span class="toc-number">6.</span> <span class="toc-text">pycrypto</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#使用rsa模块实现消息加解密"><span class="toc-number">7.</span> <span class="toc-text">使用rsa模块实现消息加解密</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.png"></div><div class="author-info__name text-center">Mochazz</div><div class="author-info__description text-center">与其哀叹，不如埋头苦干</div><div class="follow-button"><a href="https://github.com/Mochazz">Follow Me</a></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">149</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">46</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">20</span></a></div><hr><div class="author-info-links"><div class="author-info-links__title text-center">Links</div><a class="author-info-links__name text-center" href="http://www.lmxspace.com">l1nk3r</a><a class="author-info-links__name text-center" href="https://www.virzz.com">Virink</a><a class="author-info-links__name text-center" href="http://www.lsafe.org">离心</a><a class="author-info-links__name text-center" href="https://www.kingkk.com">kingkk</a><a class="author-info-links__name text-center" href="https://hpdoger.cn">hpdoger</a><a class="author-info-links__name text-center" href="https://www.smi1e.top">smi1e</a><a class="author-info-links__name text-center" href="http://m4p1e.com">maple</a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/backgroud.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">Mochazz's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus"><a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/about">About</a></span></div><div id="post-info"><div id="post-title">python学习(一)</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2017-09-28</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/编程语言/">编程语言</a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><h3 id="二叉树-前、中、后序遍历"><a href="#二叉树-前、中、后序遍历" class="headerlink" title="二叉树(前、中、后序遍历)"></a>二叉树(前、中、后序遍历)</h3><pre><code>class BinaryTree(object):
+    def __init__(self,data):
+        self.__left = None
+        self.__right = None
+        self.__data = data
+    def __del__(self):
+        del self.__data
+    def add_left_node(self,data):
+        if self.__left:
+            print(&quot;Left node exist!&quot;)
+        else:
+            self.__left = BinaryTree(data)
+            return self.__left
+    def add_right_node(self,data):
+        if self.__right:
+            print(&quot;Right node exist!&quot;)
+        else:
+            self.__right = BinaryTree(data)
+            return self.__right
+    def show(self):
+        print(self.__data)
+    def pre_order(self):#前序遍历
+        print(self.__data,end=&quot; &quot;)
+        if self.__left:
+            self.__left.pre_order()
+        if self.__right:
+            self.__right.pre_order()
+    def in_order(self):#中序遍历
+        if self.__left:
+            self.__left.in_order()
+        print(self.__data,end=&quot; &quot;)
+        if self.__right:
+            self.__right.in_order()
+    def post_order(self):#后序遍历
+        if self.__left:
+            self.__left.post_order()
+        if self.__right:
+            self.__right.post_order()
+        print(self.__data,end=&quot; &quot;)
+if __name__ == &quot;__main__&quot;:
+    root = BinaryTree(&quot;root&quot;)
+    a = root.add_left_node(&quot;A&quot;)
+    b = root.add_right_node(&quot;B&quot;)
+    c = a.add_right_node(&quot;C&quot;)
+    d = b.add_left_node(&quot;D&quot;)
+    e = b.add_right_node(&quot;E&quot;)
+    root.show()
+    root.pre_order()
+    print(&quot;&quot;)
+    root.in_order()
+    print(&quot;&quot;)
+    root.post_order()</code></pre><a id="more"></a>![](/img/learning_python1/image1.png)
+<p>运行结果：</p>
+<pre><code>root
+root A C B D E 
+A C root D B E 
+C A D E B root</code></pre><h3 id="小根堆"><a href="#小根堆" class="headerlink" title="小根堆"></a>小根堆</h3><p>heapq 模块提供了堆算法。heapq是一种子节点和父节点排序的树形数据结构。这个模块提供<code>heap[k] &lt;= heap[2*k+1]</code>并且<code>heap[k] &lt;= heap[2*k+2]</code>，根的下标从0开始。</p>
+<pre><code>import heapq
+import random
+data = random.sample(range(101),10)#生成10个100以内的随机测试数据
+print(data)
+heapq.heapify(data)#堆化测试数据
+print(data)
+heapq.heappush(data,28)#新元素入堆，并重新堆化所有数据
+print(data)
+heapq.heappop(data)#删除最小数据，并重新堆化所有数据
+print(data)
+heapq.heappushpop(data,100)#删除最小元素，新元素入堆，并重新堆化所有数据
+print(data)
+heapq.heapreplace(data,50)#功能和heapq.heappushpop一样
+print(data)
+maxs = heapq.nlargest(3,data)
+print(maxs)
+mins = heapq.nsmallest(3,data)
+#mins = heapq.nsmallest(3,data,key=str)按指定规则返回最小的3个元素
+print(mins)</code></pre><p><img src="/img/learning_python1/image2.png" alt><br>运行结果：</p>
+<pre><code>[80, 55, 34, 75, 15, 83, 56, 38, 70, 35]
+[15, 35, 34, 38, 55, 83, 56, 75, 70, 80]
+[15, 28, 34, 38, 35, 83, 56, 75, 70, 80, 55]
+[28, 35, 34, 38, 55, 83, 56, 75, 70, 80]
+[34, 35, 56, 38, 55, 83, 100, 75, 70, 80]
+[35, 38, 56, 50, 55, 83, 100, 75, 70, 80]
+[100, 83, 80]
+[35, 38, 50]</code></pre><h3 id="凯撒移位"><a href="#凯撒移位" class="headerlink" title="凯撒移位"></a>凯撒移位</h3><pre><code>import string
+low_case = string.ascii_lowercase
+up_case = string.ascii_uppercase
+before = low_case + up_case #abcdefghijklmnoqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ
+print(&quot;======== 欢迎使用凯撒移位 ========&quot;)
+print(&quot;                   Author:Mochazz&quot;)
+test_string = input(&apos;请输入你要解密的密文：&apos;)
+for i in range(1,26):
+    after = low_case[i:] + low_case[:i] + up_case[i:] + up_case[:i]
+    # print(after)
+    table = &apos;&apos;.maketrans(before,after)
+    print(&apos;移%d位：&apos;%i + test_string.translate(table))</code></pre><p>运行结果：</p>
+<pre><code>======== 欢迎使用凯撒移位 ========
+                   Author:Mochazz
+请输入你要解密的密文：Uif rvjdl cspxo gpy kvnqt pwfs uif mbaz eph
+移1位：Vjg swkem dtqyp hqz lworu qxgt vjg ncba fqi
+移2位：Wkh txlfn eurzq ira mxpsv ryhu wkh odcb grj
+移3位：Xli uymgo fvsar jsb nyqtw sziv xli pedc hsk
+移4位：Ymj vznhp gwtbs ktc ozrux tajw ymj qfed itl
+移5位：Znk waoiq hxuct lud pasvy ubkx znk rgfe jum
+移6位：Aol xbpjr iyvdu mve qbtwz vcly aol shgf kvn
+移7位：Bpm ycqks jzwev nwf rcuxa wdmz bpm tihg lwo
+移8位：Cqn zdrlt kaxfw oxg sdvyb xena cqn ujih mxp
+移9位：Dro aesmu lbygx pyh tewzc yfob dro vkji nyq
+移10位：Esp bftnv mczhy qzi ufxad zgpc esp wlkj ozr
+移11位：Ftq cguow ndaiz raj vgybe ahqd ftq xmlk pas
+移12位：Gur dhvpx oebja sbk whzcf bire gur ynml qbt
+移13位：Hvs eiwqy pfckb tcl xiadg cjsf hvs zonm rcu
+移14位：Iwt fjxrz qgdlc udm yjbeh dktg iwt apon sdv
+移15位：Jxu gkysa rhemd ven zkcfi eluh jxu bqpo tew
+移16位：Kyv hlztb sifne wfo aldgj fmvi kyv crqp ufx
+移17位：Lzw imauc tjgof xgp bmehk gnwj lzw dsrq vgy
+移18位：Max jnbvd ukhpg yhq cnfil hoxk max etsr whz
+移19位：Nby kocwe vliqh zir dogjm ipyl nby futs xia
+移20位：Ocz lpdxf wmjri ajs ephkn jqzm ocz gvut yjb
+移21位：Pda mqeyg xnksj bkt fqilo kran pda hwvu zkc
+移22位：Qeb nrfzh yoltk clu grjmp lsbo qeb ixwv ald
+移23位：Rfc osgai zpmul dmv hsknq mtcp rfc jyxw bme
+移24位：Sgd pthbj aqnvm enw itlor nudq sgd kzyx cnf
+移25位：The quick brown fox jumps over the lazy dog</code></pre><h3 id="类型转换"><a href="#类型转换" class="headerlink" title="类型转换"></a>类型转换</h3><p>类型转换可以使用str()、list()、dict()等内置方法，当需要对大量数据进行类型转换时，内置函数map()可以提供非常高的效率。</p>
+<pre><code>import timeit
+t1 = timeit.timeit(&apos;&quot;=&quot;.join([str(n) for n in range(100)])&apos;,number=10000)
+print(&apos;耗时：&apos;,t1)
+t2 = timeit.timeit(&apos;&quot;=&quot;.join(str(n) for n in range(100))&apos;,number=10000)
+print(&apos;耗时：&apos;,t2)
+t3 = timeit.timeit(&apos;&quot;=&quot;.join(map(str,range(100)))&apos;,number=10000)
+print(&apos;耗时：&apos;,t3)</code></pre><p>运行结果：</p>
+<pre><code>耗时： 0.31382967308271886
+耗时： 0.34856061037248814
+耗时： 0.24415366054608445</code></pre><h3 id="字符串加解密"><a href="#字符串加解密" class="headerlink" title="字符串加解密"></a>字符串加解密</h3><pre><code>from itertools import cycle
+def crypt(source,key):
+    result = &apos;&apos;
+    temp = cycle(key)#将key首尾相连形成一个圆环，使用next会一直循环
+    for ch in source:
+        result += chr(ord(ch)^ord(next(temp)))
+    return result
+source = input(&apos;请输入你要加密的明文：&apos;)
+key = input(&apos;秘钥为：&apos;)
+encrypted = crypt(source,key)
+print(&apos;加密后的密文为：%s&apos; % encrypted)
+print(&apos;解密后的密文为：%s&apos; % crypt(encrypted,key))</code></pre><p>运行结果：</p>
+<pre><code>请输入你要加密的明文：Mochazz
+秘钥为：hack
+加密后的密文为：%    
+解密后的密文为：Mochazz</code></pre><p>加解密原理：<br>其实就是用了^(异或)运算<br>加密：string^key=明文^秘钥=密文<br>解密：string^key^key=密文^秘钥=string^0=string=明文</p>
+<h3 id="pycrypto"><a href="#pycrypto" class="headerlink" title="pycrypto"></a>pycrypto</h3><p>Python3.5不支持pycrypto，使用以下命令可以安装pycrypto</p>
+<pre><code>pip install --use-wheel --no-index --find-links=https://github.com/sfbahr/PyCrypto-Wheels/raw/master/pycrypto-2.6.1-cp35-none-win_amd64.whl pycrypto</code></pre><h3 id="使用rsa模块实现消息加解密"><a href="#使用rsa模块实现消息加解密" class="headerlink" title="使用rsa模块实现消息加解密"></a>使用rsa模块实现消息加解密</h3><pre><code>import rsa
+key = rsa.newkeys(3000)
+public_key = key[0]
+private_key = key[1]
+
+msg = &quot;Mochazz&quot;
+print(&quot;Before:%s&quot; % msg)
+msg = msg.encode()
+crypto_msg = rsa.encrypt(msg,public_key)
+print(&quot;Crypto:%s&quot; % crypto_msg)
+decrypto_msg = rsa.decrypt(crypto_msg,private_key)
+print(&quot;Decrypto:%s&quot; % decrypto_msg.decode())</code></pre><p>运行结果：</p>
+<pre><code>Before:Mochazz
+Crypto:b&apos;.\x1b\x05\xf6\x9a\xf4\x93\x0b-P+\xda\xcd\xa0\x05\xa11rxEl0F\xceZ\xa9\x814\xb8\x93\xcfu@?\xca\x06\xae\xcc3\xe3H\xde+\x84\xe8s\xbdL&quot;&amp;\x86\xf4\x165\x89\x8d\xd4\xcf\xd9\x89j\xf4\x91lX\x9f\xe4\xf29c\x97\xee\xc5w\x87\x06\xc0\x1b\x99\xa1\x9e\xf1\xdf\xb0\xd41?\x94|\x9a\xf9\x9f\xc7\xa5uz\x8e\xa8\x07\xfc\x89\xd5\t\\y\x0e\x91\x7f\xf7\x9cZ\xade\xf5.\x05\x8e)|\x1fp\x9f)[m\xd0\x18\xd6g,\x1a\x82Mc\x82\x1b|+\x97\x1c\x9e\x91\x01\x08\xf8V\xd2?\xf0(\xf8pf;\x05$Y\x14\x1d\x85h\x85\xde\xcd\xf2\xdetU\xb1(\xf2\x03x\x82\xcf\xc9$\x85\xd3\x08|=cF\x82z\x8f\x04%\x8a\x0f\xa0\xebB&quot;=\xeb\xcf\xee\x1b\xa4\xefr+\xc8\xaau\xed~\xd7P\xe9\xbez]\xd5\xe1\x1cjBs;z`\xfbrZ6Xc\xb5\x80\xe9\x95\xd0tL\x84p\xf7\xf6,\xcd\xd9\xbb^g\xa0\x83\xeb\xad]\x8e\x9d\xf3\xc6F\xc9\xa07\r $\x89=\x19x^\&apos;\x82\x18\xdf\xc9\&apos;\x9aq\xba^\xab\xc4\xea\x06\x04)\xf7\x99A\x8e\x11\xcf\xd3\xb1\x9c\xffS\xa5I[n\xa1\xfa+\xedw\x1fF\xec\xe9\x0c\xff\x03D\x17\x9b:G\xea\x92W\xdd\xc7\xce\x8f\x85\x8c\x9c\xef\xb7\xf5H\xe9\x17\r-\xde\x1f\x00\xd9r\x9b\xaa\x11\xfb\xfa\x14i$\x02\xf0\x15?\xa0q\x98\xb6\x12\xd6\xe2s[S \x06S\x19\x92\xb4\x94L~3\xb9)\xf8\x9b&apos;
+Decrypto:Mochazz</code></pre></div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Mochazz</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://mochazz.github.io/2017/09/28/learning_python1/">https://mochazz.github.io/2017/09/28/learning_python1/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://mochazz.github.io">Mochazz's blog</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/python/">python</a><a class="post-meta__tags" href="/tags/algorithm/">algorithm</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2017/10/03/thinkphp_cms/"><i class="fa fa-chevron-left">  </i><span>基于ThinkPHP的2个cms后台getshell利用</span></a></div><div class="next-post pull-right"><a href="/2017/09/28/my_pentest_note(1)/"><span>我的渗透测试笔记(一)</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="vcomment"></div><script src="https://cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var notify = 'true' == true ? true : false;
+var verify = 'false' == true ? true : false;
+var GUEST_INFO = ['nick','mail','link'];
+var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+  return GUEST_INFO.indexOf(item) > -1
+});
+guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+window.valine = new Valine({
+  el:'#vcomment',
+  notify:notify,
+  verify:verify,
+  appId:'cFxDjSziPHq4xGCbSpRGkND7-gzGzoHsz',
+  appKey:'YhJIRxQHzY9Aix5pSGnYxKkv',
+  placeholder:'ヾﾉ≧∀≦)o留下评论再走吧',
+  avatar:'wavatar',
+  guest_info:guest_info,
+  pageSize:'10',
+  lang: 'zh-cn'
+})</script></div></div><footer class="footer-bg" style="background-image: url(/img/backgroud.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2017 - 2019 By Mochazz</div><div class="framework-info"><span>驱动 - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file-o"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.6.1"></script><script src="/js/fancybox.js?version=1.6.1"></script><script src="/js/sidebar.js?version=1.6.1"></script><script src="/js/copy.js?version=1.6.1"></script><script src="/js/fireworks.js?version=1.6.1"></script><script src="/js/transition.js?version=1.6.1"></script><script src="/js/scroll.js?version=1.6.1"></script><script src="/js/head.js?version=1.6.1"></script><script>if(/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+}</script></body></html>

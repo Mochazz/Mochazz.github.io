@@ -1,0 +1,84 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="转载 | WAF攻防之SQL注入篇"><meta name="keywords" content="sql注入"><meta name="author" content="Mochazz"><meta name="copyright" content="Mochazz"><title>转载 | WAF攻防之SQL注入篇 | Mochazz's blog</title><link rel="shortcut icon" href="/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.6.1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.6.1"><link rel="dns-prefetch" href="https://cdn.staticfile.org"><link rel="dns-prefetch" href="https://cdn.bootcss.com"><link rel="dns-prefetch" href="https://creativecommons.org"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  }
+} </script></head><body><canvas class="fireworks"></canvas><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0x00-前言"><span class="toc-number">1.</span> <span class="toc-text">0x00 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x01-注入绕过技术总结"><span class="toc-number">2.</span> <span class="toc-text">0x01 注入绕过技术总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x02-注入点检测绕过"><span class="toc-number">3.</span> <span class="toc-text">0x02 注入点检测绕过</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x03-安全狗Bypass"><span class="toc-number">4.</span> <span class="toc-text">0x03 安全狗Bypass</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x04-Modsecurity-Bypass"><span class="toc-number">5.</span> <span class="toc-text">0x04 Modsecurity Bypass</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x05-百度云加速Bypass"><span class="toc-number">6.</span> <span class="toc-text">0x05 百度云加速Bypass</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x06-阿里云盾Bypass"><span class="toc-number">7.</span> <span class="toc-text">0x06 阿里云盾Bypass</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x07-长亭雷池Bypass"><span class="toc-number">8.</span> <span class="toc-text">0x07 长亭雷池Bypass</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x08-自动化bypass"><span class="toc-number">9.</span> <span class="toc-text">0x08 自动化bypass</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x09-WAF防御"><span class="toc-number">10.</span> <span class="toc-text">0x09 WAF防御</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0xa0-总结"><span class="toc-number">11.</span> <span class="toc-text">0xa0 总结</span></a><ol class="toc-child"><li class="toc-item toc-level-5"><a class="toc-link" href="#相关文章："><span class="toc-number">11.0.0.1.</span> <span class="toc-text">相关文章：</span></a></li></ol></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.png"></div><div class="author-info__name text-center">Mochazz</div><div class="author-info__description text-center">与其哀叹，不如埋头苦干</div><div class="follow-button"><a href="https://github.com/Mochazz">Follow Me</a></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">149</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">46</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">20</span></a></div><hr><div class="author-info-links"><div class="author-info-links__title text-center">Links</div><a class="author-info-links__name text-center" href="http://www.lmxspace.com">l1nk3r</a><a class="author-info-links__name text-center" href="https://www.virzz.com">Virink</a><a class="author-info-links__name text-center" href="http://www.lsafe.org">离心</a><a class="author-info-links__name text-center" href="https://www.kingkk.com">kingkk</a><a class="author-info-links__name text-center" href="https://hpdoger.cn">hpdoger</a><a class="author-info-links__name text-center" href="https://www.smi1e.top">smi1e</a><a class="author-info-links__name text-center" href="http://m4p1e.com">maple</a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/backgroud.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">Mochazz's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus"><a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/about">About</a></span></div><div id="post-info"><div id="post-title">转载 | WAF攻防之SQL注入篇</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2018-02-27</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/bypass/">bypass</a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>本文转载自：<a href="http://galaxylab.org/waf%E6%94%BB%E9%98%B2%E4%B9%8Bsql%E6%B3%A8%E5%85%A5%E7%AF%87/" target="_blank" rel="noopener">WAF攻防之SQL注入篇</a></p>
+<h2 id="0x00-前言"><a href="#0x00-前言" class="headerlink" title="0x00 前言"></a>0x00 前言</h2><p>随着国家安全法的出台，网络安全迎来发展的新时期，越来越多企业或政府单位开始重视网络安全。很多网站陆陆续续告别裸奔时代，开始部署web应用防火墙（WAF）以应对网络攻击。由此，相关网站的安全性很大程度上取决于WAF的防护能力，WAF攻防研究已成为安全从业人员的必修课之一。<a id="more"></a></p>
+<p>大多数WAF以规则匹配为基础进行安全防护，少数WAF带有自学习能力，规则维护成为WAF的核心。近年来，基于语义识别的WAF陆续出现，对其防护能力的研究也成为大家关心的热点之一。本文以MySQL为研究对象，总结相关WAF注入绕过技术，通过实战演练让大家了解各大WAF的相关特性，最后从攻防角度对WAF安全进行总结。</p>
+<h2 id="0x01-注入绕过技术总结"><a href="#0x01-注入绕过技术总结" class="headerlink" title="0x01 注入绕过技术总结"></a>0x01 注入绕过技术总结</h2><p>对已知的WAF相关绕过技术，总结如下，网上已有相关技巧的讲解，这里就不一一演示，不明白的可以自己查询相关资料：</p>
+<p><img src="/img/WAF%E6%94%BB%E9%98%B2%E4%B9%8BSQL%E6%B3%A8%E5%85%A5%E7%AF%87/1.png" alt="1"></p>
+<p>在实际攻击场景中，单一的绕过技巧往往无效，需要我们综合利用各种绕过技术进行组合，结合各自WAF特性不断进行推理，才能真正实现绕过。</p>
+<h2 id="0x02-注入点检测绕过"><a href="#0x02-注入点检测绕过" class="headerlink" title="0x02 注入点检测绕过"></a>0x02 注入点检测绕过</h2><p>Bypass WAF的第一步是识别注入点，我们拿到一个URL，第一步判断参数是否有注入，然后再进行后续的绕过。简单的and 1=1 and 1=2判断肯定会被WAF拦截，我们需转变思路进行绕过，一般WAF为了平衡风险和业务的关系不会对下面数字型探测方式进行拦截，否则会产生大量误报影响正常业务运行。</p>
+<p><img src="/img/WAF%E6%94%BB%E9%98%B2%E4%B9%8BSQL%E6%B3%A8%E5%85%A5%E7%AF%87/2.png" alt="2"></p>
+<p><img src="/img/WAF%E6%94%BB%E9%98%B2%E4%B9%8BSQL%E6%B3%A8%E5%85%A5%E7%AF%87/3.png" alt="3"></p>
+<p><img src="/img/WAF%E6%94%BB%E9%98%B2%E4%B9%8BSQL%E6%B3%A8%E5%85%A5%E7%AF%87/4.png" alt="4"></p>
+<p>本地测试环境：</p>
+<p><img src="/img/WAF%E6%94%BB%E9%98%B2%E4%B9%8BSQL%E6%B3%A8%E5%85%A5%E7%AF%87/5.png" alt="5"></p>
+<p>如若 and也会拦截，可以直接在参数上进行类似判断操作，如<code>id=1*0</code>、<code>id=1*2</code>，除了以上方法，还有很多其它衍生出的识别绕过方法，以<code>{``op}</code>为例作演示，其它的方法大家可以按照这种思路自行发挥：</p>
+<p>安全狗：</p>
+<p><img src="/img/WAF%E6%94%BB%E9%98%B2%E4%B9%8BSQL%E6%B3%A8%E5%85%A5%E7%AF%87/6.png" alt="6"></p>
+<p>百度云加速：</p>
+<p><img src="/img/WAF%E6%94%BB%E9%98%B2%E4%B9%8BSQL%E6%B3%A8%E5%85%A5%E7%AF%87/7.png" alt="7"></p>
+<p>腾讯云：</p>
+<p><img src="/img/WAF%E6%94%BB%E9%98%B2%E4%B9%8BSQL%E6%B3%A8%E5%85%A5%E7%AF%87/8.png" alt="8"></p>
+<p>阿里云：</p>
+<p><img src="/img/WAF%E6%94%BB%E9%98%B2%E4%B9%8BSQL%E6%B3%A8%E5%85%A5%E7%AF%87/9.png" alt="9"></p>
+<p>当我们已确认注入点后，下一步的目标是完全Bypass WAF出任意数据，以下以安全狗、modsecurity、百度云加速、 阿里云盾、长亭雷池截止目前最新的版本为例，这里只提供绕过的思路，即如何利用已知技巧进行组合推理来绕过相关WAF防护，出数据具体过程这里就不详解，大家感兴趣的可以手动尝试。</p>
+<h2 id="0x03-安全狗Bypass"><a href="#0x03-安全狗Bypass" class="headerlink" title="0x03 安全狗Bypass"></a>0x03 安全狗Bypass</h2><p>本地无WAF测试环境：</p>
+<p><img src="/img/WAF%E6%94%BB%E9%98%B2%E4%B9%8BSQL%E6%B3%A8%E5%85%A5%E7%AF%87/10.png" alt="10"></p>
+<p>在对安全狗的绕过测试中发现，只需利用一个<code>*/闭合多个/*!</code>即可绕过，简单粗暴。</p>
+<p><code>http://192.168.20.123:81/user.php?id=-11/*!union/*!select/*!1,(select/*!password/*!from/*!test.user limit 0,1),3*/</code></p>
+<p><img src="/img/WAF%E6%94%BB%E9%98%B2%E4%B9%8BSQL%E6%B3%A8%E5%85%A5%E7%AF%87/11.png" alt="11"></p>
+<h2 id="0x04-Modsecurity-Bypass"><a href="#0x04-Modsecurity-Bypass" class="headerlink" title="0x04 Modsecurity Bypass"></a>0x04 Modsecurity Bypass</h2><p>本地环境搭建modsecurity模块进行安全防护，利用<code>{``op}</code>、<code>/*!50000*/</code>组合进行绕过。</p>
+<p><code>http://192.168.20.123/user.php?id=1 and{</code>version<code>length((select/*!50000schema_name*/from/*!50000information_schema.schemata*/limit 0,1))&gt;0}</code></p>
+<p><img src="/img/WAF%E6%94%BB%E9%98%B2%E4%B9%8BSQL%E6%B3%A8%E5%85%A5%E7%AF%87/12.png" alt="12"></p>
+<h2 id="0x05-百度云加速Bypass"><a href="#0x05-百度云加速Bypass" class="headerlink" title="0x05 百度云加速Bypass"></a>0x05 百度云加速Bypass</h2><p>利用<code>--+%0a</code>进行绕过。</p>
+<p><img src="/img/WAF%E6%94%BB%E9%98%B2%E4%B9%8BSQL%E6%B3%A8%E5%85%A5%E7%AF%87/13.png" alt="13"></p>
+<p><img src="/img/WAF%E6%94%BB%E9%98%B2%E4%B9%8BSQL%E6%B3%A8%E5%85%A5%E7%AF%87/14.png" alt="14"></p>
+<h2 id="0x06-阿里云盾Bypass"><a href="#0x06-阿里云盾Bypass" class="headerlink" title="0x06 阿里云盾Bypass"></a>0x06 阿里云盾Bypass</h2><p>利用<code>--+%0a</code>、<code>@自定义变量</code>、<code>{a key}</code>组合进行绕过。</p>
+<p><img src="/img/WAF%E6%94%BB%E9%98%B2%E4%B9%8BSQL%E6%B3%A8%E5%85%A5%E7%AF%87/15.png" alt="15"></p>
+<p><img src="/img/WAF%E6%94%BB%E9%98%B2%E4%B9%8BSQL%E6%B3%A8%E5%85%A5%E7%AF%87/16.png" alt="16"></p>
+<h2 id="0x07-长亭雷池Bypass"><a href="#0x07-长亭雷池Bypass" class="headerlink" title="0x07 长亭雷池Bypass"></a>0x07 长亭雷池Bypass</h2><p>经过大量测试后，发现雷池在处理MySQL注释符<code>/*! */</code>识别时存在缺陷，只需把攻击语句放在注释符中即可绕过。</p>
+<p><img src="/img/WAF%E6%94%BB%E9%98%B2%E4%B9%8BSQL%E6%B3%A8%E5%85%A5%E7%AF%87/17.png" alt="17"></p>
+<p><img src="/img/WAF%E6%94%BB%E9%98%B2%E4%B9%8BSQL%E6%B3%A8%E5%85%A5%E7%AF%87/18.png" alt="18"></p>
+<h2 id="0x08-自动化bypass"><a href="#0x08-自动化bypass" class="headerlink" title="0x08 自动化bypass"></a>0x08 自动化bypass</h2><p>当我们挖掘出绕过相关WAF进行SQL注入的技巧后，下一步就是编写脚本实现工具自动化注入。以sqlmap为例，我们编写tamper脚本实现注入自动化。</p>
+<p><img src="/img/WAF%E6%94%BB%E9%98%B2%E4%B9%8BSQL%E6%B3%A8%E5%85%A5%E7%AF%87/19.png" alt="19"></p>
+<p><img src="/img/WAF%E6%94%BB%E9%98%B2%E4%B9%8BSQL%E6%B3%A8%E5%85%A5%E7%AF%87/20.png" alt="20"></p>
+<h2 id="0x09-WAF防御"><a href="#0x09-WAF防御" class="headerlink" title="0x09 WAF防御"></a>0x09 WAF防御</h2><p>对已知或未知的安全问题进行防御是WAF功能的核心，漏报及误报是衡量一个WAF产品好坏的重要指标，具体落实到规则的及时更新、bypass新技巧的及时响应。另外，还应综合利用拦截日志数据进行相关算法分析，不断提高WAF的防护能力。总结来说，打造一款上乘的WAF，非一朝一日之功，需长期的技术储备、产品不断地更新迭代、算法地持续优化，才能把好防御这个重要的关口。同时，不断探索新的高效防护方法，才能在攻防战中立于不败之地。</p>
+<h2 id="0xa0-总结"><a href="#0xa0-总结" class="headerlink" title="0xa0 总结"></a>0xa0 总结</h2><p>从攻击者角度来看，绕过WAF的基本方法其实不多，如何把这些已知方法融合起来，并结合各自WAF本身的防护特性，不断进行推理，成为突破WAF防护的关键。当然，自动化Fuzz才是WAF Bypass新技术产生的正道。另外，从个人的注入Bypass测试过程看，绕过基于语义识别的WAF比绕过基于规则识别的WAF难得多，值得我们挑战。</p>
+<p>从WAF产品角度来看，衡量一个WAF好坏的标准是漏报率和误报率的高低，但这些指标建立在以WAF不影响正常业务为前提。测试中我发现，基于规则的WAF对业务的耦合度往往较低，不管是腾讯云WAF还是阿里云盾，对用户的输入都较为敏感，如参数中输入注释符请求就会被拦截。而基于语义的WAF的和业务的耦合度较高，误报率下降明显。从测试结果来看，基于语义识别的WAF相较传统WAF来说有较大优势，值得我们学习和借鉴。</p>
+<p>从安全管理者角度来讲，从以上测试过程可以看出，不管是基于规则的WAF还是基于语义识别的WAF，都存在被都完全绕过的可能。WAF的主要作用是提高攻击门槛，但不能消灭攻击入侵事件，解决安全问题的根本途径还得从代码层面着手进行修复。</p>
+<h5 id="相关文章："><a href="#相关文章：" class="headerlink" title="相关文章："></a>相关文章：</h5><ul>
+<li><a href="http://galaxylab.org/waf%E6%94%BB%E9%98%B2%E4%B9%8Bsql%E6%B3%A8%E5%85%A5%E7%AF%87/" target="_blank" rel="noopener">WAF攻防之SQL注入篇</a></li>
+<li><a href="https://mp.weixin.qq.com/s/Js_NV6Va8CmXG46lJwnKdQ" target="_blank" rel="noopener">关于《WAF攻防之SQL注入篇》的回应</a></li>
+<li><a href="https://xianzhi.aliyun.com/forum/topic/2069" target="_blank" rel="noopener">在《WAF攻防之SQL注入篇》中几个有意思的发现</a></li>
+<li><a href="http://drops.xmd5.com/static/drops/tips-7883.html" target="_blank" rel="noopener">乌云：Bypass WAF Cookbook</a></li>
+<li><a href="https://mp.weixin.qq.com/s/fSBZPkO0-HNYfLgmYWJKCg" target="_blank" rel="noopener">SQL注入ByPass的一些小技巧</a></li>
+</ul>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Mochazz</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://mochazz.github.io/2018/02/27/WAF攻防之SQL注入篇/">https://mochazz.github.io/2018/02/27/WAF攻防之SQL注入篇/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://mochazz.github.io">Mochazz's blog</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/sql注入/">sql注入</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2018/03/01/基于Memcached分布式系统DRDoS拒绝服务攻击技术研究/"><i class="fa fa-chevron-left">  </i><span>转载 | 基于Memcached分布式系统DRDoS拒绝服务攻击技术研究</span></a></div><div class="next-post pull-right"><a href="/2018/02/26/DEDECMS找后台目录技巧/"><span>奇技淫巧 | DEDECMS找后台目录</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="vcomment"></div><script src="https://cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var notify = 'true' == true ? true : false;
+var verify = 'false' == true ? true : false;
+var GUEST_INFO = ['nick','mail','link'];
+var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+  return GUEST_INFO.indexOf(item) > -1
+});
+guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+window.valine = new Valine({
+  el:'#vcomment',
+  notify:notify,
+  verify:verify,
+  appId:'cFxDjSziPHq4xGCbSpRGkND7-gzGzoHsz',
+  appKey:'YhJIRxQHzY9Aix5pSGnYxKkv',
+  placeholder:'ヾﾉ≧∀≦)o留下评论再走吧',
+  avatar:'wavatar',
+  guest_info:guest_info,
+  pageSize:'10',
+  lang: 'zh-cn'
+})</script></div></div><footer class="footer-bg" style="background-image: url(/img/backgroud.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2017 - 2019 By Mochazz</div><div class="framework-info"><span>驱动 - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file-o"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.6.1"></script><script src="/js/fancybox.js?version=1.6.1"></script><script src="/js/sidebar.js?version=1.6.1"></script><script src="/js/copy.js?version=1.6.1"></script><script src="/js/fireworks.js?version=1.6.1"></script><script src="/js/transition.js?version=1.6.1"></script><script src="/js/scroll.js?version=1.6.1"></script><script src="/js/head.js?version=1.6.1"></script><script>if(/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+}</script></body></html>

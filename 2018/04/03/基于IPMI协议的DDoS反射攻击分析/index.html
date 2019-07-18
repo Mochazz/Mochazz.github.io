@@ -1,0 +1,148 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="转载 | 基于IPMI协议的DDoS反射攻击分析"><meta name="keywords" content="DDOS"><meta name="author" content="Mochazz"><meta name="copyright" content="Mochazz"><title>转载 | 基于IPMI协议的DDoS反射攻击分析 | Mochazz's blog</title><link rel="shortcut icon" href="/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.6.1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.6.1"><link rel="dns-prefetch" href="https://cdn.staticfile.org"><link rel="dns-prefetch" href="https://cdn.bootcss.com"><link rel="dns-prefetch" href="https://creativecommons.org"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  }
+} </script></head><body><canvas class="fireworks"></canvas><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#0×00-前言"><span class="toc-number">1.</span> <span class="toc-text">0×00 前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0×01-攻击分析"><span class="toc-number">2.</span> <span class="toc-text">0×01 攻击分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0×02-关联风险分析"><span class="toc-number">3.</span> <span class="toc-text">0×02 关联风险分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0×03-反射攻击趋势分析"><span class="toc-number">4.</span> <span class="toc-text">0×03 反射攻击趋势分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0×04-关于团队"><span class="toc-number">5.</span> <span class="toc-text">0×04 关于团队</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.png"></div><div class="author-info__name text-center">Mochazz</div><div class="author-info__description text-center">与其哀叹，不如埋头苦干</div><div class="follow-button"><a href="https://github.com/Mochazz">Follow Me</a></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">149</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">46</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">20</span></a></div><hr><div class="author-info-links"><div class="author-info-links__title text-center">Links</div><a class="author-info-links__name text-center" href="http://www.lmxspace.com">l1nk3r</a><a class="author-info-links__name text-center" href="https://www.virzz.com">Virink</a><a class="author-info-links__name text-center" href="http://www.lsafe.org">离心</a><a class="author-info-links__name text-center" href="https://www.kingkk.com">kingkk</a><a class="author-info-links__name text-center" href="https://hpdoger.cn">hpdoger</a><a class="author-info-links__name text-center" href="https://www.smi1e.top">smi1e</a><a class="author-info-links__name text-center" href="http://m4p1e.com">maple</a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/backgroud.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">Mochazz's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus"><a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/about">About</a></span></div><div id="post-info"><div id="post-title">转载 | 基于IPMI协议的DDoS反射攻击分析</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2018-04-03</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/拒绝服务/">拒绝服务</a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>文章转载自：<a href="http://www.freebuf.com/column/167169.html" target="_blank" rel="noopener">基于IPMI协议的DDoS反射攻击分析</a></p>
+<h2 id="0×00-前言"><a href="#0×00-前言" class="headerlink" title="0×00 前言"></a>0×00 前言</h2><p><a href="https://dun.baidu.com/" target="_blank" rel="noopener">百度智云盾</a>平台在近期，防御了一次峰值2Gbps反射类型的DDOS攻击，通过安全分析，认定这是一次新型的反射DDoS攻击，该攻击使用了IPMI协议进行攻击，在国内尚未查到相关的案例。</p>
+<p>IPMI（Intelligent Platform ManagementInterface）智能平台管理接口，原本是一种Intel架构的企业系统的周边设备所采用的一种工业标准。IPMI亦是一个开放的免费标准，用户无需支付额外的费用即可使用此标准。<a id="more"></a></p>
+<p>IPMI 能够横跨不同的操作系统、固件和硬件平台，可以智能的监视、控制和自动回报大量服务器的运行状况，以降低服务器系统成本。IPMI基于UDP协议进行传输，基于该协议建立的远程管理控制服务，默认绑定在623端口。</p>
+<h2 id="0×01-攻击分析"><a href="#0×01-攻击分析" class="headerlink" title="0×01 攻击分析"></a>0×01 攻击分析</h2><p><a href="http://image.3001.net/images/20180402/15226388925544.png" target="_blank" rel="noopener"><img src="http://image.3001.net/images/20180402/15226388925544.png!small" alt="image.png"></a></p>
+<p>这个攻击过程持续了15分钟，峰值超过2Gbps。攻击来源IP共有54828个，攻击来源端口都是623，使用协议IPMI，长度为72字节。对数据包的内容进行具体分析，判断攻击包几乎都是IPMI协议的ping响应包。如图所示：</p>
+<p><a href="http://image.3001.net/images/20180402/15226389127954.png" target="_blank" rel="noopener"><img src="http://image.3001.net/images/20180402/15226389127954.png!small" alt="image.png"></a></p>
+<p>最初怀疑是攻击者伪造源IP实施的Flood攻击，但验证这54828个攻击源IP的623端口，存活率超过98%，很明显是一种反射攻击。分析反射源的地址位置特征，全球分布如下图示：</p>
+<p><a href="http://image.3001.net/images/20180402/15226389231734.png" target="_blank" rel="noopener"><img src="http://image.3001.net/images/20180402/15226389231734.png!small" alt="image.png"></a></p>
+<p>美国占了接近40%，TOP30国家排名如下图示：</p>
+<p><a href="http://image.3001.net/images/20180402/15226389335450.png" target="_blank" rel="noopener"><img src="http://image.3001.net/images/20180402/15226389335450.png!small" alt="image.png"></a></p>
+<h2 id="0×02-关联风险分析"><a href="#0×02-关联风险分析" class="headerlink" title="0×02 关联风险分析"></a>0×02 关联风险分析</h2><p>本次攻击采用的IPMIping攻击包，与常规的ping 类似，不同之处ping使用了ICMP协议传输。</p>
+<p>IPMI 协议广泛用在Supermicro, Dell, HP, IBM的板载卡管理系统中。而这些存在着默认密码，甚至有些存在长久的Web漏洞可以直接获取密码。认证后可以操作除了ping之外更多的操作，如监控等数据。此时返回数据字节数会远大于请求数据。</p>
+<p><strong>设备分布：</strong></p>
+<p>全网分析共有133000个IPMI设备暴露在公网中。其中HP iLO, Supermicro IPMI, Dell iDARC三种设备占据75%以上的份额。因此，之前暴露出的安全问题也基本围绕着这几款设备。</p>
+<p><a href="http://image.3001.net/images/20180402/1522638988709.png" target="_blank" rel="noopener"><img src="http://image.3001.net/images/20180402/1522638988709.png!small" alt="image.png"></a></p>
+<p><strong>IPMI设备攻击面：</strong></p>
+<p>1、Web管理接口</p>
+<p>通常是HTTP的80或者443端口，出现过的漏洞：存在默认账号密码登录，Webserver接口溢出等漏洞。详细如下：</p>
+<p>CVE-2013-4782 Supermicro任意IPMI命令执行</p>
+<p>CVE-2013-3623 Supermicro cgi/close_window.cgi缓冲区溢出任意命令执行</p>
+<p>CVE-2013-3622 Supermicro logout.cgi缓冲区溢出任意命令执行</p>
+<p>CVE-2013-3609 Supermicro 权限绕过漏洞</p>
+<p>CVE-2013-3607 Supermicro 任意代码执行</p>
+<p>CVE-2013-4037 IBM IPMI明文凭证泄漏</p>
+<p>CVE-2014-0860 IBM BladeCenter高级管理模块IPMI明文凭证泄漏</p>
+<p>2、KVM console接口</p>
+<p>通常为TCP 5900端口，出现过的漏洞：弱口令。</p>
+<p>3、IPMI通讯接口</p>
+<p>通常为UDP的623端口，出现过的漏洞：存在默认账号密码登录，协议漏洞。详细如下：</p>
+<p>CVE-2014-8272 IPMI 1.5会话ID随机性不足</p>
+<p>CVE-2013-4786 IPMI2.0离线密码爆破漏洞</p>
+<p>CVE-2013-4037 IPMI密码哈希值泄漏漏洞</p>
+<p>CVE-2013-4031 IPMI用户默认账号登录漏洞</p>
+<p>CVE-2013-4782 Supermicro 身份验证绕过导致任意代码执行</p>
+<p>CVE-2013-4783 Dell iDRAC6 身份验证绕过导致任意代码执行</p>
+<p>CVE-2013-4784 Hp iLO 任意密码绕过</p>
+<p>4、SMASH接口</p>
+<p>通常为TCP的22端口，出现过的漏洞：弱口令。</p>
+<p><strong>漏洞统计：</strong></p>
+<p>对危害性评级为高危的漏洞进行统计。共有24500个IP存在高危漏洞。总体占比18.5%。</p>
+<p>1、IPMI 2.0 Cipher Zero Authentication Bypass。（涉及的漏洞编号CVE-2013-4782，CVE-2013-4783，CVE-2013-4784）远程攻击者可通过使用密码套件0（又名cipher zero）和任意的密码，利用该漏洞绕过身份认证，执行任意IPMI命令。IPMI 2.0使用cipher zero加密组件时，攻击者只需要知道一个有效的用户名就可以接管IPMI的功能。而大部分设备都存在默认账号和密码。</p>
+<table>
+<thead>
+<tr>
+<th>设备</th>
+<th>默认账号</th>
+<th>默认密码</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>DELL</td>
+<td>root</td>
+<td>calvin</td>
+</tr>
+<tr>
+<td>HP</td>
+<td>Administrator</td>
+<td>随机密码</td>
+</tr>
+<tr>
+<td>IBM</td>
+<td>USERID</td>
+<td>PASSW0RD</td>
+</tr>
+<tr>
+<td>SUPERMICRO</td>
+<td>ADMIN</td>
+<td>ADMIN</td>
+</tr>
+<tr>
+<td>ORACLE</td>
+<td>root</td>
+<td>changeme</td>
+</tr>
+<tr>
+<td>ASUS</td>
+<td>admin</td>
+<td>admin</td>
+</tr>
+<tr>
+<td>FUJITSU</td>
+<td>admin</td>
+<td>admin</td>
+</tr>
+<tr>
+<td>Huawei</td>
+<td>root</td>
+<td>Huawei12#$</td>
+</tr>
+</tbody></table>
+<p>全网扫描结果：</p>
+<p><strong>17716个IP存在Cipher Zero Authentication Bypass漏洞。</strong></p>
+<hr>
+<p>2、IPMI V1.5会话ID随机性不足</p>
+<p>IPMI v1.5 使用Session-ID 进行认证，Session-ID的取值范围（2^32）。部分远程控制卡在实现过程中，采用的Session-ID是0x0200XXYY格式。其中XX可以直接预测，黑客伪造YY的数值，可以在低权限或者未认证的情况下，启用新session执行任意命令。</p>
+<p>全网扫描结果：</p>
+<p><strong>2918 个IP存在会话ID随机性不足的漏洞。</strong></p>
+<hr>
+<p>3、开启匿名帐户登录或明文密码泄露</p>
+<p>SuperMicro老版本在49152放置了明文密码文件。攻击者可以通过请求服务器49152端口的/PSBlock文件，就可得到80端口web管理界面的密码，密码放在PSBlock文件中。 </p>
+<p>全网扫描结果：</p>
+<p><strong>390个IP存在明文密码泄露，3776个IP允许匿名帐户登录。</strong></p>
+<p>漏洞地理分布：</p>
+<p><a href="http://image.3001.net/images/20180402/15226392952552.png" target="_blank" rel="noopener"><img src="http://image.3001.net/images/20180402/15226392952552.png!small" alt="image.png"></a></p>
+<p><a href="http://image.3001.net/images/20180402/15226393034960.png" target="_blank" rel="noopener"><img src="http://image.3001.net/images/20180402/15226393034960.png!small" alt="image.png"></a></p>
+<p>板载卡管理系统往往不注重Web安全，更新也需要升级固件，很多公司往往忽略这些工作，导致很多有漏洞的平台裸露在公网中，非常容易成为黑客攻击的目标。 </p>
+<p>通过扫描此次DDoS攻击源进行分析，有近一半的IP属于Supermicro IPMI管理平台。而Supermicro IPMI管理平台也曾被爆出很多漏洞，其中“明文格式存储密码文件PSBlock漏洞”影响较大，存在这类漏洞的机器被黑客劫持后，常用来当作DDoS攻击的“肉鸡”。根据安全人员的分析，在2014年8月就有攻击者劫持了多达100,000的此类“肉鸡”发起了针对ComputerworldUK.com的混合DDoS攻击，攻击峰值达300Gbps，持续一天以上。</p>
+<h2 id="0×03-反射攻击趋势分析"><a href="#0×03-反射攻击趋势分析" class="headerlink" title="0×03 反射攻击趋势分析"></a>0×03 反射攻击趋势分析</h2><p>本次攻击使用的IPMIping包</p>
+<p>IPMIping  传输如下：</p>
+<p><a href="http://image.3001.net/images/20180402/15226394454289.png" target="_blank" rel="noopener"><img src="http://image.3001.net/images/20180402/15226394454289.png!small" alt="image.png"></a></p>
+<p>Req请求 65字节，返回72字节。放大比例1.1倍。</p>
+<p>但从放大比例上看，IPMI的ping包并不是一个好的“反射”放大协议。</p>
+<p>但IPMIping 由于攻击包小，来源广泛，可能会穿透部分传统设备。</p>
+<p>从最近的几次反射攻击事件看，一些使用量中等规模的UDP服务逐渐黑客利用起来，包括之前的Memcached反射，放大倍数利率达到50000倍，非常惊人。即使互联网上公共开放的数量只有10几万，也能产生大于1T的流量攻击。</p>
+<p>无认证逻辑，或者弱认证逻辑（包含默认密码），不常见的UDP服务逐渐成为黑客发动攻击的首选。 </p>
+<h2 id="0×04-关于团队"><a href="#0×04-关于团队" class="headerlink" title="0×04 关于团队"></a>0×04 关于团队</h2><p>智云盾基于百度安全成熟的防御技术，通过灵活的合作模式，旨在为合作伙伴的IDC环境内建设和提供安全基础设施，为其本地快速检测和防御DDoS攻击提供解决方案，同时还能为其客户提供自动化且无限扩展的DDoS云防服务。此外智云盾平台集成包括资产弱点评估、黑客攻击检测、实时安全防御和威胁情报等一系列百度安全能力，在提高IDC安全能力的同时，为最终客户提供安全增值服务。了解更多请访问：<a href="https://dun.baidu.com/" target="_blank" rel="noopener">https://dun.baidu.com</a></p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Mochazz</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://mochazz.github.io/2018/04/03/基于IPMI协议的DDoS反射攻击分析/">https://mochazz.github.io/2018/04/03/基于IPMI协议的DDoS反射攻击分析/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://mochazz.github.io">Mochazz's blog</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/DDOS/">DDOS</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2018/04/11/flask/"><i class="fa fa-chevron-left">  </i><span>Flask学习笔记</span></a></div><div class="next-post pull-right"><a href="/2018/04/03/dedecms最新后台两处getshell/"><span>代码审计之dedecms最新后台两处getshell</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="vcomment"></div><script src="https://cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var notify = 'true' == true ? true : false;
+var verify = 'false' == true ? true : false;
+var GUEST_INFO = ['nick','mail','link'];
+var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+  return GUEST_INFO.indexOf(item) > -1
+});
+guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+window.valine = new Valine({
+  el:'#vcomment',
+  notify:notify,
+  verify:verify,
+  appId:'cFxDjSziPHq4xGCbSpRGkND7-gzGzoHsz',
+  appKey:'YhJIRxQHzY9Aix5pSGnYxKkv',
+  placeholder:'ヾﾉ≧∀≦)o留下评论再走吧',
+  avatar:'wavatar',
+  guest_info:guest_info,
+  pageSize:'10',
+  lang: 'zh-cn'
+})</script></div></div><footer class="footer-bg" style="background-image: url(/img/backgroud.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2017 - 2019 By Mochazz</div><div class="framework-info"><span>驱动 - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file-o"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.6.1"></script><script src="/js/fancybox.js?version=1.6.1"></script><script src="/js/sidebar.js?version=1.6.1"></script><script src="/js/copy.js?version=1.6.1"></script><script src="/js/fireworks.js?version=1.6.1"></script><script src="/js/transition.js?version=1.6.1"></script><script src="/js/scroll.js?version=1.6.1"></script><script src="/js/head.js?version=1.6.1"></script><script>if(/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+}</script></body></html>

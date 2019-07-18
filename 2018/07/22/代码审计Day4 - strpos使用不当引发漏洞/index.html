@@ -1,0 +1,89 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="代码审计Day4 - strpos使用不当引发漏洞"><meta name="keywords" content="PHP-Audit-Labs"><meta name="author" content="Mochazz"><meta name="copyright" content="Mochazz"><title>代码审计Day4 - strpos使用不当引发漏洞 | Mochazz's blog</title><link rel="shortcut icon" href="/favicon.ico"><link rel="stylesheet" href="/css/index.css?version=1.6.1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.6.1"><link rel="dns-prefetch" href="https://cdn.staticfile.org"><link rel="dns-prefetch" href="https://cdn.bootcss.com"><link rel="dns-prefetch" href="https://creativecommons.org"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  }
+} </script></head><body><canvas class="fireworks"></canvas><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#前言"><span class="toc-number">1.</span> <span class="toc-text">前言</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Day-4-False-Beard"><span class="toc-number">2.</span> <span class="toc-text">Day 4 - False Beard</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#实例分析"><span class="toc-number">3.</span> <span class="toc-text">实例分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞验证"><span class="toc-number">4.</span> <span class="toc-text">漏洞验证</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#修复建议"><span class="toc-number">5.</span> <span class="toc-text">修复建议</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#结语"><span class="toc-number">6.</span> <span class="toc-text">结语</span></a></li></ol></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.png"></div><div class="author-info__name text-center">Mochazz</div><div class="author-info__description text-center">与其哀叹，不如埋头苦干</div><div class="follow-button"><a href="https://github.com/Mochazz">Follow Me</a></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">149</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">46</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">20</span></a></div><hr><div class="author-info-links"><div class="author-info-links__title text-center">Links</div><a class="author-info-links__name text-center" href="http://www.lmxspace.com">l1nk3r</a><a class="author-info-links__name text-center" href="https://www.virzz.com">Virink</a><a class="author-info-links__name text-center" href="http://www.lsafe.org">离心</a><a class="author-info-links__name text-center" href="https://www.kingkk.com">kingkk</a><a class="author-info-links__name text-center" href="https://hpdoger.cn">hpdoger</a><a class="author-info-links__name text-center" href="https://www.smi1e.top">smi1e</a><a class="author-info-links__name text-center" href="http://m4p1e.com">maple</a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/backgroud.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">Mochazz's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus"><a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/about">About</a></span></div><div id="post-info"><div id="post-title">代码审计Day4 - strpos使用不当引发漏洞</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2018-07-22</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/代码审计/">代码审计</a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>本文由红日安全成员： <strong>l1nk3r</strong> 编写，如有不当，还望斧正。</p>
+<h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>大家好，我们是红日安全-代码审计小组。最近我们小组正在做一个PHP代码审计的项目，供大家学习交流，我们给这个项目起了一个名字叫 <strong>PHP-Audit-Labs</strong> 。现在大家所看到的系列文章，属于项目 <strong>第一阶段</strong> 的内容，本阶段的内容题目均来自 <a href="https://www.ripstech.com/php-security-calendar-2017/" target="_blank" rel="noopener">PHP SECURITY CALENDAR 2017</a> 。对于每一道题目，我们均给出对应的分析，并结合实际CMS进行解说。在文章的最后，我们还会留一道CTF题目，供大家练习，希望大家喜欢。下面是 <strong>第4篇</strong> 代码审计文章：<a id="more"></a></p>
+<h2 id="Day-4-False-Beard"><a href="#Day-4-False-Beard" class="headerlink" title="Day 4 - False Beard"></a>Day 4 - False Beard</h2><p>题目名字叫假胡子，代码如下：</p>
+<p><img src="/img/PHP-Audit-Labs/Day4/1.png" alt="1"></p>
+<p><strong>题目解析：</strong></p>
+<p>我们看到 <strong>第11行</strong> 和 <strong>第12行</strong> ，程序通过格式化字符串的方式，使用 <strong>xml</strong> 结构存储用户的登录信息。实际上这样很容易造成数据注入。然后 <strong>第21行</strong> 实例化 <strong>Login</strong> 类，并在 <strong>第16行</strong> 处调用 <strong>login</strong> 方法进行登陆操作。在进行登录操作之前，代码在 <strong>第8行</strong> 和 <strong>第9行</strong> 使用 <strong>strpos</strong> 函数来防止输入的参数含有 <strong>&lt;</strong> 和 <strong>&gt;</strong> 符号，猜测开发者应该是考虑到非法字符注入问题。我们先来看一下 <strong>strpos</strong> 函数的定义：</p>
+<blockquote>
+<p><strong><a href="http://php.net/manual/zh/function.strpos.php" target="_blank" rel="noopener">strpos</a></strong> — 查找字符串首次出现的位置</p>
+<p>作用：主要是用来查找字符在字符串中首次出现的位置。</p>
+<p>结构：<code>int strpos ( string $haystack , mixed $needle [, int $offset = 0 ] )</code></p>
+</blockquote>
+<p><img src="/img/PHP-Audit-Labs/Day4/2.png" alt="2"></p>
+<p>在上面这个例子中，<strong>strpos</strong> 函数返回查找到的子字符串的下标。如果字符串开头就是我们要搜索的目标，则返回下标 <strong>0</strong> ；如果搜索不到，则返回 <strong>false</strong> 。在这道题目中，开发者只考虑到 <strong>strpos</strong> 函数返回 <strong>false</strong> 的情况，却忽略了匹配到的字符在首位时会返回 <strong>0</strong> 的情况，因为 <strong>false</strong> 和 <strong>0</strong> 的取反均为 <strong>true</strong> 。这样我们就可以在用户名和密码首字符注入 <strong>&lt;</strong> 符号，从而注入xml数据。我们尝试使用以下 <strong>payload</strong> ，观察 <strong>strpos</strong> 函数的返回结果。</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">user=&lt;<span class="string">"&gt;&lt;injected-tag%20property="</span>&amp;pass=&lt;injected-tag&gt;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/img/PHP-Audit-Labs/Day4/5.png" alt="5"></p>
+<p>如上图所示，很明显是可以注入xml数据的。</p>
+<h2 id="实例分析"><a href="#实例分析" class="headerlink" title="实例分析"></a>实例分析</h2><p>实际上，本次漏洞是开发者对 <strong>strpos</strong> 函数理解不够，或者说是开发者考虑不周，导致过滤方法可被绕过。由于我们暂时没有在互联网上找到 <strong>strpos</strong> 使用不当导致漏洞的CMS案例，所以这里只能选取一个相似的漏洞进行分析，同样是开发者验证不够周全导致的漏洞。</p>
+<p>本次案例，我们选取 <strong>DeDecms V5.7SP2正式版</strong> 进行分析，该CMS存在未修复的任意用户密码重置漏洞。漏洞的触发点在 <strong>member/resetpassword.php</strong> 文件中，由于对接收的参数 <strong>safeanswer</strong> 没有进行严格的类型判断，导致可以使用弱类型比较绕过。我们来看看相关代码：</p>
+<p><img src="/img/PHP-Audit-Labs/Day4/6.png" alt="6"></p>
+<p>针对上面的代码做个分析，当 <strong>$dopost</strong> 等于 <strong>safequestion</strong> 的时候，通过传入的 <strong>$mid</strong> 对应的 <strong>id</strong> 值来查询对应用户的安全问题、安全答案、用户id、电子邮件等信息。跟进到 <strong>第11行</strong> ，当我们传入的问题和答案非空，而且等于之前设置的问题和答案，则进入 <strong>sn</strong> 函数。然而这里使用的是 <strong>==</strong> 而不是 <strong>===</strong> 来判断，所以是可以绕过的。假设用户没有设置安全问题和答案，那么默认情况下安全问题的值为 <strong>0</strong> ，答案的值为 <strong>null</strong> （这里是数据库中的值，即 <strong>$row[‘safequestion’]=”0”</strong> 、 <strong>$row[‘safeanswer’]=null</strong> ）。当没有设置 <strong>safequestion</strong> 和 <strong>safeanswer</strong> 的值时，它们的值均为空字符串。第11行的if表达式也就变成了 <strong>if(‘0’ == ‘’ &amp;&amp; null == ‘’)</strong> ，即 <strong>if(false &amp;&amp; true)</strong> ，所以我们只要让表达式 <strong>$row[‘safequestion’] == $safequestion</strong> 为 <strong>true</strong> 即可。下图是 <strong>null == ‘’</strong> 的判断结果：</p>
+<p><img src="/img/PHP-Audit-Labs/Day4/7.png" alt="7"></p>
+<p>我们可以利用 <strong>php弱类型</strong> 的特点，来绕过这里 <strong>$row[‘safequestion’] == $safequestion</strong> 的判断，如下：</p>
+<p><img src="/img/PHP-Audit-Labs/Day4/9.png" alt="9"></p>
+<p>通过测试找到了三个的payload，分别是 <strong>0.0</strong> 、 <strong>0.</strong> 、 <strong>0e1</strong> ，这三种类型payload均能使得 <strong>$row[‘safequestion’] == $safequestion</strong>  为 <strong>true</strong> ，即成功进入 <strong>sn</strong> 函数。跟进 <strong>sn</strong> 函数，相关代码在 <strong>member/inc/inc_pwd_functions.php</strong> 文件中，具体代码如下：</p>
+<p><img src="/img/PHP-Audit-Labs/Day4/10.png" alt="10"></p>
+<p>在 <strong>sn</strong> 函数内部，会根据id到pwd_tmp表中判断是否存在对应的临时密码记录，根据结果确定分支，走向 <strong>newmail</strong> 函数。假设当前我们第一次进行忘记密码操作，那么此时的 <strong>$row</strong> 应该为空，所以进入第一个 <strong>if(!is_array($row))</strong> 分支，在 <strong>newmail</strong> 函数中执行 <strong>INSERT</strong> 操作，相关操作代码位置在 <strong>member/inc/inc_pwd_functions.php</strong> 文件中，关键代码如下：</p>
+<p><img src="/img/PHP-Audit-Labs/Day4/11.png" alt="11"></p>
+<p>该代码主要功能是发送邮件至相关邮箱，并且插入一条记录至 <strong>dede_pwd_tmp</strong> 表中。而恰好漏洞的触发点就在这里，我们看看 <strong>第13行</strong> 至 <strong>第18行</strong> 的代码，如果 <strong>($send == ‘N’)</strong> 这个条件为真，通过 <strong>ShowMsg</strong> 打印出修改密码功能的链接。 <strong>第17行</strong> 修改密码链接中的 <strong>$mid</strong> 参数对应的值是用户id，而 <strong>$randval</strong> 是在第一次 <strong>insert</strong> 操作的时候将其 <strong>md5</strong> 加密之后插入到 <strong>dede_pwd_tmp</strong> 表中，并且在这里已经直接回显给用户。那么这里拼接的url其实是</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/member/resetpassword.php?dopost=getpasswd&amp;id=$mid&amp;key=$randval</span><br></pre></td></tr></table></figure>
+
+<p>继续跟进一下 <strong>dopost=getpasswd</strong> 的操作，相关代码位置在 <strong>member/resetpassword.php</strong> 中，</p>
+<p><img src="/img/PHP-Audit-Labs/Day4/12.png" alt="12"></p>
+<p>在重置密码的时候判断输入的用户id是否执行过重置密码，如果id为空则退出；如果 <strong>$row</strong> 不为空，则会执行以下操作内容，相关代码在 <strong>member/resetpassword.php</strong> 中。</p>
+<p><img src="/img/PHP-Audit-Labs/Day4/13.png" alt="13"></p>
+<p>上图代码会先判断是否超时，如果没有超时，则进入密码修改页面。在密码修改页面会将 <strong>$setp</strong> 赋值为2。</p>
+<p><img src="/img/PHP-Audit-Labs/Day4/14.png" alt="14"></p>
+<p>由于现在的数据包中 <strong>$setp=2</strong> ，因此这部分功能代码实现又回到了 <strong>member/resetpassword.php</strong> 文件中。</p>
+<p><img src="/img/PHP-Audit-Labs/Day4/15.png" alt="15"></p>
+<p>上图代码 <strong>第6行</strong> 判断传入的 <strong>$key</strong> 是否等于数据库中的 <strong>$row[‘pwd’]</strong> ，如果相等就完成重置密码操作，至此也就完成了整个攻击的分析过程。</p>
+<h2 id="漏洞验证"><a href="#漏洞验证" class="headerlink" title="漏洞验证"></a>漏洞验证</h2><p>我们分别注册 <strong>test1</strong> ， <strong>test2</strong> 两个账号</p>
+<p>第一步访问 <strong>payload</strong> 中的 <strong>url</strong> </p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://127.0.0.1/dedecms/member/resetpassword.php?dopost=safequestion&amp;safequestion=0.0&amp;safeanswer=&amp;id=9</span><br></pre></td></tr></table></figure>
+
+<p>这里 <strong>test2</strong> 的id是9</p>
+<p><img src="/img/PHP-Audit-Labs/Day4/19.png" alt="19"></p>
+<p><img src="/img/PHP-Audit-Labs/Day4/16.png" alt="16"></p>
+<p>通过抓包获取到 <strong>key</strong> 值。</p>
+<p><img src="/img/PHP-Audit-Labs/Day4/17.png" alt="17"></p>
+<p>去掉多余的字符访问修改密码链接</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http://192.168.31.240/dedecms/member/resetpassword.php?dopost=getpasswd&amp;id=9&amp;key=OTyEGJtg</span><br></pre></td></tr></table></figure>
+
+<p><img src="/img/PHP-Audit-Labs/Day4/18.png" alt="18"></p>
+<p>最后成功修改密码，我将密码修改成 <strong>123456</strong> ，数据库中 <strong>test2</strong> 的密码字段也变成了 <strong>123456</strong> 加密之后的值。</p>
+<p><img src="/img/PHP-Audit-Labs/Day4/20.png" alt="20"></p>
+<h2 id="修复建议"><a href="#修复建议" class="headerlink" title="修复建议"></a>修复建议</h2><p>针对上面 <strong>DeDecms任意用户密码重置</strong> 漏洞，我们只需要使用 <strong>===</strong> 来代替 <strong>==</strong> 就行了。因为 <strong>===</strong> 操作会同时判断左右两边的值和数据类型是否相等，若有一个不等，即返回 <strong>false</strong> 。具体修复代码如下：</p>
+<p><img src="/img/PHP-Audit-Labs/Day4/21.png" alt="21"></p>
+<h2 id="结语"><a href="#结语" class="headerlink" title="结语"></a>结语</h2><p>看完了上述分析，不知道大家是否对 <strong>strpos使用不当</strong> 引发的漏洞有了更加深入的理解，文中用到的代码可以从 <a href="http://updatenew.dedecms.com/base-v57/package/DedeCMS-V5.7-UTF8-SP2.tar.gz" target="_blank" rel="noopener">这里</a> 下载，当然文中若有不当之处，还望各位斧正。如果你对我们的项目感兴趣，欢迎发送邮件到 <strong><a href="mailto:hongrisec@gmail.com" target="_blank" rel="noopener">hongrisec@gmail.com</a></strong> 联系我们。<strong>Day4</strong> 的分析文章就到这里，我们最后留了一道CTF题目给大家练手，题目如下：链接: <a href="https://pan.baidu.com/s/1pHjOVK0Ib-tjztkgBxe3nQ" target="_blank" rel="noopener">https://pan.baidu.com/s/1pHjOVK0Ib-tjztkgBxe3nQ</a> 密码: 59t2</p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Mochazz</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://mochazz.github.io/2018/07/22/代码审计Day4 - strpos使用不当引发漏洞/">https://mochazz.github.io/2018/07/22/代码审计Day4 - strpos使用不当引发漏洞/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://mochazz.github.io">Mochazz's blog</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/PHP-Audit-Labs/">PHP-Audit-Labs</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2018/07/23/nday漏洞还原分析之dedecms后台getshell/"><i class="fa fa-chevron-left">  </i><span>nday漏洞还原分析之dedecms后台getshell</span></a></div><div class="next-post pull-right"><a href="/2018/07/08/代码审计Day3 - 实例化任意对象漏洞/"><span>代码审计Day3 - 实例化任意对象漏洞</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="vcomment"></div><script src="https://cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var notify = 'true' == true ? true : false;
+var verify = 'false' == true ? true : false;
+var GUEST_INFO = ['nick','mail','link'];
+var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+  return GUEST_INFO.indexOf(item) > -1
+});
+guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+window.valine = new Valine({
+  el:'#vcomment',
+  notify:notify,
+  verify:verify,
+  appId:'cFxDjSziPHq4xGCbSpRGkND7-gzGzoHsz',
+  appKey:'YhJIRxQHzY9Aix5pSGnYxKkv',
+  placeholder:'ヾﾉ≧∀≦)o留下评论再走吧',
+  avatar:'wavatar',
+  guest_info:guest_info,
+  pageSize:'10',
+  lang: 'zh-cn'
+})</script></div></div><footer class="footer-bg" style="background-image: url(/img/backgroud.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2017 - 2019 By Mochazz</div><div class="framework-info"><span>驱动 - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file-o"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.6.1"></script><script src="/js/fancybox.js?version=1.6.1"></script><script src="/js/sidebar.js?version=1.6.1"></script><script src="/js/copy.js?version=1.6.1"></script><script src="/js/fireworks.js?version=1.6.1"></script><script src="/js/transition.js?version=1.6.1"></script><script src="/js/scroll.js?version=1.6.1"></script><script src="/js/head.js?version=1.6.1"></script><script>if(/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+}</script></body></html>
