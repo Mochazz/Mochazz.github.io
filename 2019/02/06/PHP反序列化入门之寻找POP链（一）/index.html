@@ -20,7 +20,7 @@
 <p><strong>运行题目代码</strong> </p>
 <p><img src="/img/PHP%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%85%A5%E9%97%A8%E4%B9%8B%E5%AF%BB%E6%89%BEPOP%E9%93%BE1/2.png" alt="2"></p>
 <p>更多请参考：<a href="https://laravel-china.org/docs/lumen/5.7/installation/2402" target="_blank" rel="noopener">https://laravel-china.org/docs/lumen/5.7/installation/2402</a></p>
-<p>PS：更新P牛制作的docker环境 <a href="https://github.com/phith0n/code-breaking" target="_blank" rel="noopener">https://github.com/phith0n/code-breaking</a></p>
+<p>PS：更新P牛制作的docker环境 <a href="https://github.com/phith0n/code-breaking" target="_blank" rel="noopener">https://github.com/phith0n/code-breaking</a> <a id="more"></a></p>
 <h2 id="漏洞点"><a href="#漏洞点" class="headerlink" title="漏洞点"></a>漏洞点</h2><p>在 <strong>routes/web.php</strong> 文件中，定义了 <strong>web</strong> 程序的路由，当我们以 <strong>GET</strong> 或 <strong>POST</strong> 方法访问 <strong><a href="http://website/server/editor" target="_blank" rel="noopener">http://website/server/editor</a></strong> 的时候，程序就会调用 <strong>app/Http/Controllers/EditorController.php</strong> 类中的 <strong>main</strong> 方法。</p>
 <p><img src="/img/PHP%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96%E5%85%A5%E9%97%A8%E4%B9%8B%E5%AF%BB%E6%89%BEPOP%E9%93%BE1/3.png" alt="3"></p>
 <p>我们进而看 <strong>app/Http/Controllers/EditorController.php</strong> 文件，很快便会发现有一个 <strong>download</strong> 方法中的 <strong>$url</strong> 变量没有经过任何处理用在了 <strong>file_get_contents</strong> 函数中， <strong>download</strong> 方法代码如下：</p>

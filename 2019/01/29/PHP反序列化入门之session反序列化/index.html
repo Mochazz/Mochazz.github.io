@@ -36,7 +36,7 @@
 <td>将上传文件的进度信息存在session中。默认开启。</td>
 </tr>
 </tbody></table>
-<p>我们先通过一个样例代码，看看3种不同的 <strong>session</strong> 序列化处理器处理 <strong>session</strong> 的情况。</p>
+<p>我们先通过一个样例代码，看看3种不同的 <strong>session</strong> 序列化处理器处理 <strong>session</strong> 的情况。<a id="more"></a></p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">session_start();</span><br><span class="line">$_SESSION[<span class="string">'name'</span>] = <span class="string">'mochazz'</span>;</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
 
 <p>当 <strong>session.serialize_handler=php</strong> 时，session文件内容为：  <code>name|s:7:&quot;mochazz&quot;;</code> </p>

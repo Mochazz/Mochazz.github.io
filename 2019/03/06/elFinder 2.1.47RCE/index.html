@@ -11,7 +11,7 @@
 <p>![1](/img/elFinder 2.1.47RCE/1.png)</p>
 <p>我们可以根据 <strong>commit</strong> 记录，查找具体修改代码的位置。</p>
 <p>![2](/img/elFinder 2.1.47RCE/2.png)</p>
-<p>![3](/img/elFinder 2.1.47RCE/3.png)</p>
+<p>![3](/img/elFinder 2.1.47RCE/3.png)<a id="more"></a></p>
 <p>我们可以清楚的看到 <strong>$path</strong> 变量经过了 <strong>escapeshellarg</strong> 函数的处理并赋值给了 <strong>$quotedPath</strong> ，然而下面在使用的时候用的却是 <strong>$path</strong> 变量，且新版本修改的代码正是将 <strong>$path</strong> 变量替换成了 <strong>$quotedPath</strong> 变量，估计问题就出在这里。接下来我们便进到 <strong>php/elFinderVolumeDriver.class.php</strong> 文件中，具体看看。</p>
 <p>![4](/img/elFinder 2.1.47RCE/4.png)</p>
 <p>我们可以看待代码中要满足两个条件才能利用该漏洞：</p>
