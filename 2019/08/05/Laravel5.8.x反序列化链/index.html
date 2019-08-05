@@ -11,7 +11,8 @@
 <h2 id="漏洞环境"><a href="#漏洞环境" class="headerlink" title="漏洞环境"></a>漏洞环境</h2><p>直接使用 <strong>composer</strong> 安装 <strong>laravel5.8</strong> 框架，并通过 <code>php artisan serve</code> 命令启动 <strong>Web</strong> 服务。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">➜  composer create-project --prefer-dist laravel/laravel laravel58</span><br><span class="line">➜  <span class="built_in">cd</span> laravel58</span><br><span class="line">➜  php artisan serve --host=0.0.0.0</span><br></pre></td></tr></table></figure>
 
-<p>在 <strong>laravel57/routes/web.php</strong> 文件中添加一条路由，便于我们后续访问。</p>
+<a id="more"></a>在 **laravel57/routes/web.php** 文件中添加一条路由，便于我们后续访问。
+
 <figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// /var/www/html/laravel58/routes/web.php</span></span><br><span class="line"><span class="meta">&lt;?php</span></span><br><span class="line">Route::get(<span class="string">"/"</span>,<span class="string">"\App\Http\Controllers\DemoController@demo"</span>);</span><br><span class="line"><span class="meta">?&gt;</span></span><br></pre></td></tr></table></figure>
 
 <p>在 <strong>laravel58/app/Http/Controllers/</strong> 下添加 <strong>DemoController</strong> 控制器，代码如下：</p>
