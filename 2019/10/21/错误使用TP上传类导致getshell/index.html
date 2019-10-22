@@ -1,0 +1,54 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="错误使用TP上传类导致getshell"><meta name="keywords" content="CTF"><meta name="author" content="Mochazz"><meta name="copyright" content="Mochazz"><title>错误使用TP上传类导致getshell | Mochazz's blog</title><link rel="shortcut icon" href="/favicon.png"><link rel="stylesheet" href="/css/index.css?version=1.6.1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.6.1"><link rel="dns-prefetch" href="https://cdn.staticfile.org"><link rel="dns-prefetch" href="https://cdn.bootcss.com"><link rel="dns-prefetch" href="https://creativecommons.org"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  }
+} </script></head><body><canvas class="fireworks"></canvas><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">Mochazz</div><div class="author-info__description text-center">人若无名，方可潜心练剑</div><div class="follow-button"><a href="https://github.com/Mochazz">Follow Me</a></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">176</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">60</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">20</span></a></div><hr><div class="author-info-links"><div class="author-info-links__title text-center">Links</div><a class="author-info-links__name text-center" href="http://www.lmxspace.com">l1nk3r</a><a class="author-info-links__name text-center" href="https://www.virzz.com">Virink</a><a class="author-info-links__name text-center" href="http://www.lsafe.org">离心</a><a class="author-info-links__name text-center" href="https://www.kingkk.com">kingkk</a><a class="author-info-links__name text-center" href="https://hpdoger.cn">hpdoger</a><a class="author-info-links__name text-center" href="https://www.smi1e.top">smi1e</a><a class="author-info-links__name text-center" href="http://m4p1e.com">maple</a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/backgroud.jpg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">Mochazz's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus"><a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/about">About</a></span></div><div id="post-info"><div id="post-title">错误使用TP上传类导致getshell</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2019-10-21</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/CTF竞赛训练/">CTF竞赛训练</a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>首先这个案例来自 <strong>RoarCTF2019</strong> 中的 <a href="https://github.com/berTrAM888/RoarCTF-Writeup-some-Source-Code/tree/master/Web/simple_upload" target="_blank" rel="noopener">simple_upload</a> 一题。其实看到这题的时候，就发现这题的考点，和之前自己审计某款产品的前台任意文件上传漏洞几乎一样。这里不想再浪费时间记录这道题的解法，直接转载官方WP。懒：）<a id="more"></a></p>
+<hr>
+<center><strong>官方题解如下</strong></center>
+
+<p>题目提供了源代码，可以看出题目是thinkphp写的，并且存在文件上传</p>
+<p><img src="/img/%E9%94%99%E8%AF%AF%E4%BD%BF%E7%94%A8TP%E4%B8%8A%E4%BC%A0%E7%B1%BB%E5%AF%BC%E8%87%B4getshell/1.png" alt="1"></p>
+<p>根据源码构造出上传文件的数据包并测试上传</p>
+<p><img src="/img/%E9%94%99%E8%AF%AF%E4%BD%BF%E7%94%A8TP%E4%B8%8A%E4%BC%A0%E7%B1%BB%E5%AF%BC%E8%87%B4getshell/2.png" alt="2"></p>
+<p>测试上传功能没问题，但是源码中限制了$_FILES[file]文件名不能是.php文件，得想办法绕过。 <strong>$upload-&gt;allowExts</strong> 并不是 <strong>Think\Upload</strong> 类的正确用法，所以 <strong>allowexts</strong> 后缀名限制是无效的。</p>
+<p>熟悉 <strong>thinkphp</strong> 的应该知道， <strong>upload()</strong> 函数不传参时为多文件上传，整个 <strong>$_FILES</strong> 数组的文件都会上传保存。</p>
+<p>题目中只限制了 <strong>$_FILES[file]</strong> 的上传后缀，也只给出 <strong>$_FILES[file]</strong> 上传后的路径，那我们上传多文件就可以绕过 <strong>php</strong> 后缀限制</p>
+<p><img src="/img/%E9%94%99%E8%AF%AF%E4%BD%BF%E7%94%A8TP%E4%B8%8A%E4%BC%A0%E7%B1%BB%E5%AF%BC%E8%87%B4getshell/3.png" alt="3"></p>
+<p><strong>php</strong> 文件肯定是上传成功了，下一步就是要知道上传后的php文件名。多上传几次看回显就会发现保存的文件名是有规律的，那能否找到这个规律呢。这里可以下一份 <strong>thinkphp3</strong> 的源码，看一下 <strong>think\upload</strong> 类是怎么生成文件名的</p>
+<p><img src="/img/%E9%94%99%E8%AF%AF%E4%BD%BF%E7%94%A8TP%E4%B8%8A%E4%BC%A0%E7%B1%BB%E5%AF%BC%E8%87%B4getshell/4.png" alt="4"></p>
+<p>查看 <strong>thinkphp</strong> 源码得知文件名是通过 <strong>uniqid</strong> 函数生成的， <strong>uniqid</strong> 函数是基于以微秒计的当前时间计算的，两个同时上传生成的文件名相差不会太远</p>
+<p><img src="/img/%E9%94%99%E8%AF%AF%E4%BD%BF%E7%94%A8TP%E4%B8%8A%E4%BC%A0%E7%B1%BB%E5%AF%BC%E8%87%B4getshell/5.png" alt="5"></p>
+<p>同时上传txt文件跟php文件，txt上传后的文件名跟php的文件名非常接近。我们只需要构造Burp包，遍历爆破txt文件名后三位 <strong>0-9 a-f</strong> 的文件名，就能猜出php的文件名</p>
+<p><img src="/img/%E9%94%99%E8%AF%AF%E4%BD%BF%E7%94%A8TP%E4%B8%8A%E4%BC%A0%E7%B1%BB%E5%AF%BC%E8%87%B4getshell/6.png" alt="6"></p>
+<p><img src="/img/%E9%94%99%E8%AF%AF%E4%BD%BF%E7%94%A8TP%E4%B8%8A%E4%BC%A0%E7%B1%BB%E5%AF%BC%E8%87%B4getshell/7.png" alt="7"></p>
+<p>爆破没成功的话多上传多尝试几次就可以，或者加大爆破范围，最后爆破访问php文件成功直接返回flag</p>
+<p><img src="/img/%E9%94%99%E8%AF%AF%E4%BD%BF%E7%94%A8TP%E4%B8%8A%E4%BC%A0%E7%B1%BB%E5%AF%BC%E8%87%B4getshell/8.png" alt="8"></p>
+<p>PS：把 <strong>$upload-&gt;allowExts</strong> 替换成 <strong>$upload-&gt;exts</strong> 就可以修补这个漏洞了。</p>
+<p>题解转自： <a href="https://github.com/berTrAM888/RoarCTF-Writeup-some-Source-Code/blob/master/Web/simple_upload/writeup/SimpleUpload-Writeup.docx" target="_blank" rel="noopener">https://github.com/berTrAM888/RoarCTF-Writeup-some-Source-Code/blob/master/Web/simple_upload/writeup/SimpleUpload-Writeup.docx</a> </p>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Mochazz</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://mochazz.github.io/2019/10/21/错误使用TP上传类导致getshell/">https://mochazz.github.io/2019/10/21/错误使用TP上传类导致getshell/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://mochazz.github.io">Mochazz's blog</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/CTF/">CTF</a></div><nav id="pagination"><div class="next-post pull-right"><a href="/2019/10/18/Joomla3.0.0-3.4.6RCE分析/"><span>Joomla3.0.0-3.4.6RCE分析</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="vcomment"></div><script src="https://cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var notify = 'true' == true ? true : false;
+var verify = 'false' == true ? true : false;
+var GUEST_INFO = ['nick','mail','link'];
+var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+  return GUEST_INFO.indexOf(item) > -1
+});
+guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+window.valine = new Valine({
+  el:'#vcomment',
+  notify:notify,
+  verify:verify,
+  appId:'cFxDjSziPHq4xGCbSpRGkND7-gzGzoHsz',
+  appKey:'YhJIRxQHzY9Aix5pSGnYxKkv',
+  placeholder:'ヾﾉ≧∀≦)o留下评论再走吧',
+  avatar:'wavatar',
+  guest_info:guest_info,
+  pageSize:'10',
+  lang: 'zh-cn'
+})</script></div></div><footer class="footer-bg" style="background-image: url(/img/backgroud.jpg)"><div class="layout" id="footer"><div class="copyright">&copy;2017 - 2019 By Mochazz</div><div class="framework-info"><span>驱动 - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file-o"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.6.1"></script><script src="/js/fancybox.js?version=1.6.1"></script><script src="/js/sidebar.js?version=1.6.1"></script><script src="/js/copy.js?version=1.6.1"></script><script src="/js/fireworks.js?version=1.6.1"></script><script src="/js/transition.js?version=1.6.1"></script><script src="/js/scroll.js?version=1.6.1"></script><script src="/js/head.js?version=1.6.1"></script><script>if(/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+}</script></body></html>
