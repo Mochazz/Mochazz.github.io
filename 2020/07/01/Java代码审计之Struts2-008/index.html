@@ -1,0 +1,158 @@
+<!DOCTYPE html><html lang="zh-Hans"><head><meta name="generator" content="Hexo 3.9.0"><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"><meta name="description" content="Java代码审计之Struts2-007(五)"><meta name="keywords" content="Struts2"><meta name="author" content="Mochazz"><meta name="copyright" content="Mochazz"><title>Java代码审计之Struts2-007(五) | Mochazz's blog</title><link rel="shortcut icon" href="/favicon.png"><link rel="stylesheet" href="/css/index.css?version=1.6.1"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@latest/css/font-awesome.min.css?version=1.6.1"><link rel="dns-prefetch" href="https://cdn.staticfile.org"><link rel="dns-prefetch" href="https://cdn.bootcss.com"><link rel="dns-prefetch" href="https://creativecommons.org"><script>var GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  }
+} </script></head><body><canvas class="fireworks"></canvas><i class="fa fa-arrow-right" id="toggle-sidebar" aria-hidden="true"></i><div id="sidebar"><div class="toggle-sidebar-info text-center"><span data-toggle="切换文章详情">切换站点概览</span><hr></div><div class="sidebar-toc"><div class="sidebar-toc__title">目录</div><div class="sidebar-toc__progress"><span class="progress-notice">你已经读了</span><span class="progress-num">0</span><span class="progress-percentage">%</span><div class="sidebar-toc__progress-bar"></div></div><div class="sidebar-toc__content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞概要"><span class="toc-number">1.</span> <span class="toc-text">漏洞概要</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞环境"><span class="toc-number">2.</span> <span class="toc-text">漏洞环境</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞分析"><span class="toc-number">3.</span> <span class="toc-text">漏洞分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#漏洞修复"><span class="toc-number">4.</span> <span class="toc-text">漏洞修复</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#参考"><span class="toc-number">5.</span> <span class="toc-text">参考</span></a></li></ol><li class="toc-item toc-level-1"><a class="toc-link" href="#Struts2漏洞目录"><span class="toc-number"></span> <span class="toc-text">Struts2漏洞目录</span></a></li></div></div><div class="author-info hide"><div class="author-info__avatar text-center"><img src="/img/avatar.jpg"></div><div class="author-info__name text-center">Mochazz</div><div class="author-info__description text-center">人若无名，方可潜心练剑</div><div class="follow-button"><a href="https://github.com/Mochazz">Follow Me</a></div><hr><div class="author-info-articles"><a class="author-info-articles__archives article-meta" href="/archives"><span class="pull-left">文章</span><span class="pull-right">220</span></a><a class="author-info-articles__tags article-meta" href="/tags"><span class="pull-left">标签</span><span class="pull-right">81</span></a><a class="author-info-articles__categories article-meta" href="/categories"><span class="pull-left">分类</span><span class="pull-right">20</span></a></div><hr><div class="author-info-links"><div class="author-info-links__title text-center">Links</div><a class="author-info-links__name text-center" href="http://www.lmxspace.com">l1nk3r</a><a class="author-info-links__name text-center" href="https://www.virzz.com">Virink</a><a class="author-info-links__name text-center" href="https://www.kingkk.com">kingkk</a><a class="author-info-links__name text-center" href="https://hpdoger.cn">hpdoger</a><a class="author-info-links__name text-center" href="https://www.smi1e.top">smi1e</a><a class="author-info-links__name text-center" href="http://m4p1e.com">maple</a><a class="author-info-links__name text-center" href="https://zhzhdoai.github.io">osword</a><a class="author-info-links__name text-center" href="https://nikoeurus.github.io">Somnus</a><a class="author-info-links__name text-center" href="https://landgrey.me">LandGrey</a><a class="author-info-links__name text-center" href="https://www.cnpanda.net">panda</a><a class="author-info-links__name text-center" href="http://foreversong.cn">ADog</a></div></div></div><div id="content-outer"><div id="top-container" style="background-image: url(/img/backgroud.jpeg)"><div id="page-header"><span class="pull-left"> <a id="site-name" href="/">Mochazz's blog</a></span><i class="fa fa-bars toggle-menu pull-right" aria-hidden="true"></i><span class="pull-right menus"><a class="site-page" href="/">Home</a><a class="site-page" href="/archives">Archives</a><a class="site-page" href="/about">About</a><a class="site-page" href="/read">Read</a></span></div><div id="post-info"><div id="post-title">Java代码审计之Struts2-007(五)</div><div id="post-meta"><time class="post-meta__date"><i class="fa fa-calendar" aria-hidden="true"></i> 2020-07-01</time><span class="post-meta__separator">|</span><i class="fa fa-inbox post-meta__icon" aria-hidden="true"></i><a class="post-meta__categories" href="/categories/代码审计/">代码审计</a></div></div></div><div class="layout" id="content-inner"><article id="post"><div class="article-container" id="post-content"><p>本系列文章将详细分析 <strong>Java</strong> 流行框架 <strong>Struts2</strong> 的历史漏洞，今后关于 <strong>Struts2</strong> 新的漏洞分析，也将更新于 <a href="https://github.com/Mochazz/Struts2-Vuln" target="_blank" rel="noopener">Struts2-Vuln</a> 项目上。该系列仅是笔者初学 <strong>Java代码审计</strong> 的一些记录，也希望能够帮助到想学习 <strong>Java代码审计</strong> 的朋友 。如有任何问题，欢迎 <strong>issue</strong> 。分析文章均来自 <a href="https://mochazz.github.io"><strong>个人博客</strong></a> ，转载请注明出处。<a id="more"></a></p>
+<h2 id="漏洞概要"><a href="#漏洞概要" class="headerlink" title="漏洞概要"></a>漏洞概要</h2><p>Struts2-007是一个目录遍历漏洞。</p>
+<p>影响版本： <strong>Struts 2.0.0 - Struts 2.2.3</strong> 。更多详情可参考官方通告：<a href="https://cwiki.apache.org/confluence/display/WW/S2-007" target="_blank" rel="noopener">https://cwiki.apache.org/confluence/display/WW/S2-007</a> </p>
+<h2 id="漏洞环境"><a href="#漏洞环境" class="headerlink" title="漏洞环境"></a>漏洞环境</h2><p>Apache Tomcat/8.5.47+struts-2.0.8</p>
+<p>下载地址：<a href="http://archive.apache.org/dist/struts/binaries/struts-2.0.8-all.zip" target="_blank" rel="noopener">http://archive.apache.org/dist/struts/binaries/struts-2.0.8-all.zip</a> </p>
+<p><a href="https://github.com/vulhub/vulhub/tree/master/struts2/s2-007" target="_blank" rel="noopener">https://github.com/vulhub/vulhub/tree/master/struts2/s2-007</a></p>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>在 <strong>Struts2</strong> 中，可以将 <strong>HTTP</strong> 请求数据注入到实际业务 <strong>Action</strong> 的属性中。而这些属性可以是任意类型的数据，通</p>
+<h2 id="漏洞修复"><a href="#漏洞修复" class="headerlink" title="漏洞修复"></a>漏洞修复</h2><p>下图右边为官方修复后的代码（左图struts-core-2.0.8，右图为struts-core-2.0.12），</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-007" target="_blank" rel="noopener">https://cwiki.apache.org/confluence/display/WW/S2-007</a> </p>
+<p><a href="http://www.java2s.com/Code/Jar/x/Downloadxwork206jar.htm" target="_blank" rel="noopener">http://www.java2s.com/Code/Jar/x/Downloadxwork206jar.htm</a></p>
+<ul>
+<li><h1 id="Struts2漏洞目录"><a href="#Struts2漏洞目录" class="headerlink" title="Struts2漏洞目录"></a>Struts2漏洞目录</h1></li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-001" target="_blank" rel="noopener">S2-001</a> - 远程代码利用表单验证错误</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-002" target="_blank" rel="noopener">S2-002</a> - &lt;s：url&gt;和&lt;s：a&gt;标记上的跨站点脚本（XSS）漏洞</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-003" target="_blank" rel="noopener">S2-003</a> - XWork ParameterInterceptors旁路允许OGNL语句执行</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-004" target="_blank" rel="noopener">S2-004</a> - 提供静态内容时的目录遍历漏洞</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-005" target="_blank" rel="noopener">S2-005</a> - XWork ParameterInterceptors旁路允许远程命令执行</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-006" target="_blank" rel="noopener">S2-006</a> - XWork中的多个跨站点脚本（XSS）生成错误页面</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-007" target="_blank" rel="noopener">S2-007</a> - 当出现转换错误时，用户输入被评估为OGNL表达式</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-008" target="_blank" rel="noopener">S2-008</a> - Struts2中的多个关键漏洞</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-009" target="_blank" rel="noopener">S2-009</a> - ParameterInterceptor漏洞允许远程命令执行</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-010" target="_blank" rel="noopener">S2-010</a> - 当使用Struts 2令牌机制进行CSRF保护时，可能会因滥用已知会话属性而绕过令牌检查</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-011" target="_blank" rel="noopener">S2-011</a> - 长请求参数名称可能会显着提高DOS攻击的有效性</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-012" target="_blank" rel="noopener">S2-012</a> - 展示应用程序漏洞允许远程命令执行</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-013" target="_blank" rel="noopener">S2-013</a> - URL和锚标记的includeParams属性中存在的漏洞允许远程命令执行</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-014" target="_blank" rel="noopener">S2-014</a> - 强制参数包含在URL和锚标记中引入的漏洞允许远程命令执行，会话访问和操作以及XSS攻击</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-015" target="_blank" rel="noopener">S2-015</a> - 通配符匹配机制引入的漏洞或OGNL表达式的双重评估允许远程命令执行。</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-016" target="_blank" rel="noopener">S2-016</a> - 通过操作前缀为“action：”/“redirect：”/“redirectAction：”的参数引入的漏洞允许远程命令执行</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-017" target="_blank" rel="noopener">S2-017</a> - 通过操作前缀为“redirect：”/“redirectAction：”的参数引入的漏洞允许打开重定向</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-018" target="_blank" rel="noopener">S2-018</a> - Apache Struts2中的访问控制漏洞</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-019" target="_blank" rel="noopener">S2-019</a> - 默认情况下禁用动态方法调用</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-020" target="_blank" rel="noopener">S2-020</a> - 将Commons FileUpload升级到版本1.3.1（避免DoS攻击）并添加’class’以排除ParametersInterceptor中的params（避免ClassLoader操作）</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-021" target="_blank" rel="noopener">S2-021</a> - 改进了ParametersInterceptor和CookieInterceptor中被排除的参数，以避免ClassLoader操作</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-022" target="_blank" rel="noopener">S2-022</a> - 在CookieInterceptor中扩展排除的params以避免操纵Struts的内部</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-023" target="_blank" rel="noopener">S2-023</a> - 令牌的生成值可以预测</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-024" target="_blank" rel="noopener">S2-024</a> - 错误的excludeParams会覆盖DefaultExcludedPatternsChecker中定义的那些</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-025" target="_blank" rel="noopener">S2-025</a> - 调试模式和公开的JSP文件中的跨站点脚本漏洞</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-026" target="_blank" rel="noopener">S2-026</a> - 特殊顶级对象可用于访问Struts的内部</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-027" target="_blank" rel="noopener">S2-027</a> - TextParseUtil.translateVariables不过滤恶意OGNL表达式</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-028" target="_blank" rel="noopener">S2-028</a> - 使用具有损坏的URLDecoder实现的JRE可能会导致基于Struts 2的Web应用程序中的XSS漏洞。</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-029" target="_blank" rel="noopener">S2-029</a> - 在标记属性中对原始用户输入进行评估时，强制双OGNL评估可能导致远程代码执行。</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-030" target="_blank" rel="noopener">S2-030</a> - <a href="https://cwiki.apache.org/confluence/display/WW/S2-030" target="_blank" rel="noopener">I18NInterceptor中</a>可能的XSS漏洞</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-031" target="_blank" rel="noopener">S2-031</a> - XSLTResult可用于解析任意样式表</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-032" target="_blank" rel="noopener">S2-032</a> - 启用动态方法调用时，可以通过方法：前缀执行远程执行代码。</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-033" target="_blank" rel="noopener">S2-033</a> - 使用REST插件时可以执行远程执行代码！启用动态方法调用时的运算符。</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-034" target="_blank" rel="noopener">S2-034</a> - OGNL缓存中毒可能导致DoS漏洞</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-035" target="_blank" rel="noopener">S2-035</a> - 动作名称清理容易出错</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-036" target="_blank" rel="noopener">S2-036</a> - 在标签属性中对原始用户输入进行评估时，强制双OGNL评估可能导致远程代码执行（类似于S2-029）</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-037" target="_blank" rel="noopener">S2-037</a> - 使用REST插件时可以执行远程执行代码。</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-038" target="_blank" rel="noopener">S2-038</a> - 可以绕过令牌验证并执行CSRF攻击</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-039" target="_blank" rel="noopener">S2-039</a> - Getter作为行动方法导致安全绕过</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-040" target="_blank" rel="noopener">S2-040</a> - 使用现有默认操作方法输入验证绕过。</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-041" target="_blank" rel="noopener">S2-041</a> - 使用URLValidator时可能发生DoS攻击</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-042" target="_blank" rel="noopener">S2-042</a> - “公约”插件中可能的路径遍历</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-043" target="_blank" rel="noopener">S2-043</a> - 在生产中使用Config Browser插件</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-044" target="_blank" rel="noopener">S2-044</a> - 使用URLValidator时可能发生DoS攻击</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-045" target="_blank" rel="noopener">S2-045</a> - 基于Jakarta Multipart解析器执行文件上载时可能的远程执行代码。</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-046" target="_blank" rel="noopener">S2-046</a> - 基于Jakarta Multipart解析器执行文件上传时可能的RCE（类似于S2-045）</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-047" target="_blank" rel="noopener">S2-047</a> - 使用URLValidator时可能发生DoS攻击（类似于S2-044）</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-048" target="_blank" rel="noopener">S2-048</a> - Struts 2.3.x系列中Struts 1插件示例中的Struts Showcase应用程序中可能的RCE</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-049" target="_blank" rel="noopener">S2-049</a> - DoS攻击可用于Spring安全操作</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-050" target="_blank" rel="noopener">S2-050</a> - 使用URLValidator时的正则表达式拒绝服务（类似于S2-044和S2-047）</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-051" target="_blank" rel="noopener">S2-051</a> - 远程攻击者可能在使用Struts REST插件时通过发送精心设计的xml请求来创建DoS攻击</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-052" target="_blank" rel="noopener">S2-052</a> - 使用带有XStream处理程序的Struts REST插件处理XML有效负载时可能发生的远程代码执行攻击</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-053" target="_blank" rel="noopener">S2-053</a> - 在Freemarker标记中使用无意表达而不是字符串文字时可能发生的远程执行代码攻击</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-054" target="_blank" rel="noopener">S2-054</a> - 使用Struts REST插件时，可以使用精心设计的JSON请求执行DoS攻击</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-055" target="_blank" rel="noopener">S2-055</a> - Jackson JSON库中的RCE漏洞</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-056" target="_blank" rel="noopener">S2-056</a> - 使用Struts REST插件时，可以使用精心设计的XML请求执行DoS攻击</p>
+</li>
+<li><p><a href="https://cwiki.apache.org/confluence/display/WW/S2-057" target="_blank" rel="noopener">S2-057</a> - 当alwaysSelectFullNamespace为true（由用户或插件如Convention Plugin）时可能执行远程代码执行，然后：结果使用没有命名空间，同时，其上层包没有或通配符名称空间，类似于结果，当使用没有值和动作集的url标记时，它的上层包没有或通配符命名空间。</p>
+</li>
+</ul>
+</div></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Mochazz</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://mochazz.github.io/2020/07/01/Java代码审计之Struts2-008/">https://mochazz.github.io/2020/07/01/Java代码审计之Struts2-008/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://mochazz.github.io">Mochazz's blog</a>！</span></div></div><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/Struts2/">Struts2</a></div><nav id="pagination"><div class="prev-post pull-left"><a href="/2020/07/01/Java代码审计之Struts2-007/"><i class="fa fa-chevron-left">  </i><span>Java代码审计之Struts2-007(五)</span></a></div><div class="next-post pull-right"><a href="/2020/06/28/Java代码审计之Struts2-004/"><span>Java代码审计之Struts2-004(四)</span><i class="fa fa-chevron-right"></i></a></div></nav><div id="vcomment"></div><script src="https://cdn1.lncld.net/static/js/3.0.4/av-min.js"></script><script src="https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js"></script><script>var notify = 'true' == true ? true : false;
+var verify = 'false' == true ? true : false;
+var GUEST_INFO = ['nick','mail','link'];
+var guest_info = 'nick,mail,link'.split(',').filter(function(item){
+  return GUEST_INFO.indexOf(item) > -1
+});
+guest_info = guest_info.length == 0 ? GUEST_INFO :guest_info;
+window.valine = new Valine({
+  el:'#vcomment',
+  notify:notify,
+  verify:verify,
+  appId:'cFxDjSziPHq4xGCbSpRGkND7-gzGzoHsz',
+  appKey:'YhJIRxQHzY9Aix5pSGnYxKkv',
+  placeholder:'ヾﾉ≧∀≦)o留下评论再走吧',
+  avatar:'wavatar',
+  guest_info:guest_info,
+  pageSize:'10',
+  lang: 'zh-cn'
+})</script></div></div><footer class="footer-bg" style="background-image: url(/img/backgroud.jpeg)"><div class="layout" id="footer"><div class="copyright">&copy;2017 - 2020 By Mochazz</div><div class="framework-info"><span>驱动 - </span><a href="http://hexo.io"><span>Hexo</span></a><span class="footer-separator">|</span><span>主题 - </span><a href="https://github.com/Molunerfinn/hexo-theme-melody"><span>Melody</span></a></div><div class="busuanzi"><script async src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><span id="busuanzi_container_page_pv"><i class="fa fa-file-o"></i><span id="busuanzi_value_page_pv"></span><span></span></span></div></div></footer><i class="fa fa-arrow-up" id="go-up" aria-hidden="true"></i><script src="https://cdn.jsdelivr.net/npm/animejs@latest/anime.min.js"></script><script src="https://cdn.jsdelivr.net/npm/jquery@latest/dist/jquery.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@latest/dist/jquery.fancybox.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-animate@latest/velocity.min.js"></script><script src="https://cdn.jsdelivr.net/npm/velocity-ui-pack@latest/velocity.ui.min.js"></script><script src="/js/utils.js?version=1.6.1"></script><script src="/js/fancybox.js?version=1.6.1"></script><script src="/js/sidebar.js?version=1.6.1"></script><script src="/js/copy.js?version=1.6.1"></script><script src="/js/fireworks.js?version=1.6.1"></script><script src="/js/transition.js?version=1.6.1"></script><script src="/js/scroll.js?version=1.6.1"></script><script src="/js/head.js?version=1.6.1"></script><script>if(/Android|webOS|iPhone|iPod|BlackBerry/i.test(navigator.userAgent)) {
+  $('#nav').addClass('is-mobile')
+  $('footer').addClass('is-mobile')
+}</script></body></html>
